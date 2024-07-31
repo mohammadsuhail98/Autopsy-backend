@@ -65,6 +65,11 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.sleuthkit</groupId>
+			<artifactId>sleuthkit</artifactId>
+			<version>4.12.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
