@@ -1,0 +1,13 @@
+package uma.autopsy.Cases;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import uma.autopsy.Cases.Models.Case;
+
+import java.util.Optional;
+
+@Repository
+public interface CaseRepository extends JpaRepository<Case, Integer>  {
+    Optional<Case> findByName(String name);
+    Optional<Case> findByNameAndDeviceId(String name, String deviceId);
+}
