@@ -80,6 +80,10 @@ public class CaseServiceImp implements CaseService {
         return caseRepository.findAll();
     }
 
+    public List<Case> getCasesByDeviceId(String deviceId) {
+        return caseRepository.findByDeviceId(deviceId);
+    }
+
     public void deleteCaseById(int id){
         Optional<Case> existingCase = caseRepository.findById(id);
         if (existingCase.isEmpty()) {

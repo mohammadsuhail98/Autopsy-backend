@@ -10,5 +10,6 @@ public interface CaseService {
     Case createCase(Case caseEntity);
     Case getCase(int id);
     List<Case> getAllCases();
+    List<Case> getCasesByDeviceId(String deviceId);
     void deleteCaseById(int id);
 }

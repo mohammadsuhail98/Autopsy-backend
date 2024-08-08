@@ -60,10 +60,20 @@ public class CaseController {
         }
     }
 
-    @GetMapping
+    @GetMapping("all")
     public ResponseEntity<List<Case>> getAllCases() {
         List<Case> cases = caseService.getAllCases();
         return new ResponseEntity<>(cases, HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getCasesByDeviceId(@RequestHeader("deviceId") String deviceId) {
+        try {
+            List<Case> cases = caseService.getCasesByDeviceId(deviceId);
+            return new ResponseEntity<>(cases, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(new ErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }
