@@ -13,6 +13,7 @@ import uma.autopsy.Cases.Exceptions.CaseDoesNotExistException;
 import uma.autopsy.Cases.Models.Case;
 import uma.autopsy.Devices.Device;
 import uma.autopsy.Devices.DeviceRepository;
+import uma.autopsy.GlobalProperties.GlobalProperties;
 
 @Primary
 @Service
@@ -22,41 +23,48 @@ public class CaseServiceImp implements CaseService {
     private CaseRepository caseRepository;
     @Autowired
     private DeviceRepository deviceRepository;
-    String caseDir = "/Users/mohammadsuhail/Desktop/cases";
+    @Autowired
+    private GlobalProperties globalProperties;
 
     @Override
     public Case createCase(Case caseEntity) {
-
-        Optional<Case> existingCase = caseRepository.findByNameAndDeviceId(caseEntity.getName(), caseEntity.getDeviceId());
-        if (existingCase.isPresent()) {
-            throw new CaseAlreadyExistsException("Case with name " + caseEntity.getName() + " and hardware ID " + caseEntity.getDeviceId() + " already exists.");
-        }
-
-        Optional<Device> device = deviceRepository.findByHardwareId(caseEntity.getDeviceId());
-        if (!device.isPresent()) {
-            // If the device doesn't exist, create a new one
-            Device newDevice = new Device(caseEntity.getDeviceId());
-            deviceRepository.save(newDevice);
-            device = Optional.of(newDevice);
-            caseEntity.setDevice(device.get());
-        } else {
-            caseEntity.setDevice(device.get());
-        }
-
-        // Ensure the directory structure exists
-        String deviceDirPath = caseDir + "/" + caseEntity.getDeviceId();
-        File deviceDir = new File(deviceDirPath);
-        if (!deviceDir.exists()) {
-            deviceDir.mkdirs();
-        }
-
+        caseExistWithDeviceId(caseEntity);
+        caseEntity.setDevice(getOrCreateDevice(caseEntity));
         try {
-            SleuthkitCase skCase = SleuthkitCase.newCase(deviceDirPath + "/" + caseEntity.getName());
+            SleuthkitCase skCase = SleuthkitCase.newCase(STR."\{getCaseDir(caseEntity.getDeviceId())}/\{caseEntity.getName()}");
             caseEntity.setCasePath(skCase.getDbDirPath());
         } catch (TskCoreException e) {
             throw new RuntimeException(e);
         }
         return caseRepository.save(caseEntity);
+    }
+
+    public void caseExistWithDeviceId(Case caseEntity) throws CaseAlreadyExistsException {
+        Optional<Case> existingCase = caseRepository.findByNameAndDeviceId(caseEntity.getName(), caseEntity.getDeviceId());
+        if (existingCase.isPresent()) {
+            throw new CaseAlreadyExistsException(STR."Case with name \{caseEntity.getName()} under this device ID \{caseEntity.getDeviceId()} already exists.");
+        }
+    }
+
+    Device getOrCreateDevice(Case caseEntity){
+        String deviceId = caseEntity.getDeviceId();
+        Optional<Device> device = deviceRepository.findByHardwareId(deviceId);
+        if (device.isEmpty()) {
+            Device newDevice = new Device();
+            newDevice.setHardwareId(deviceId);
+            deviceRepository.save(newDevice);
+            return newDevice;
+        }
+        return device.get();
+    }
+
+    String getCaseDir(String deviceId){
+        String deviceDirPath = globalProperties.getBaseDir() + "/" + deviceId;
+        File deviceDir = new File(deviceDirPath);
+        if (!deviceDir.exists()) {
+            deviceDir.mkdirs();
+        }
+        return deviceDirPath;
     }
 
     public Case getCase(int id){
