@@ -1,4 +1,4 @@
-package uma.autopsy.Cases.Models;
+package uma.autopsy.Cases;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;

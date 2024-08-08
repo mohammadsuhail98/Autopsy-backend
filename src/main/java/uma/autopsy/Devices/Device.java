@@ -2,7 +2,7 @@ package uma.autopsy.Devices;
 
 import jakarta.persistence.*;
 import lombok.*;
-import uma.autopsy.Cases.Models.Case;
+import uma.autopsy.Cases.Case;
 
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;

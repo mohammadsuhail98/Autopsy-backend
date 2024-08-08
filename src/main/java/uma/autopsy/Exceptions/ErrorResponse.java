@@ -1,4 +1,4 @@
-package uma.autopsy.Cases.Models;
+package uma.autopsy.Exceptions;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

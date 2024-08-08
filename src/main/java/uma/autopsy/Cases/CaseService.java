@@ -1,11 +1,6 @@
 package uma.autopsy.Cases;
 
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import uma.autopsy.Cases.Models.Case;
-
 import java.util.List;
-import java.util.Optional;
 
 public interface CaseService {
     Case createCase(Case caseEntity);

@@ -1,15 +1,10 @@
 package uma.autopsy.Cases;
 
 import jakarta.validation.Valid;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uma.autopsy.Exceptions.BadRequestException;
-import uma.autopsy.Exceptions.CaseAlreadyExistsException;
-import uma.autopsy.Cases.Models.Case;
-import uma.autopsy.Cases.Models.ErrorResponse;
 
 import java.util.List;
 
