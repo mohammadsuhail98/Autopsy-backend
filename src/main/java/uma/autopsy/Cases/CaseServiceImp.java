@@ -2,14 +2,16 @@ package uma.autopsy.Cases;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.util.*;
 import org.sleuthkit.datamodel.SleuthkitCase;
 import org.sleuthkit.datamodel.TskCoreException;
-import uma.autopsy.Cases.Exceptions.CaseAlreadyExistsException;
-import uma.autopsy.Cases.Exceptions.CaseDoesNotExistException;
+import uma.autopsy.Exceptions.CaseAlreadyExistsException;
+import uma.autopsy.Exceptions.CaseDoesNotExistException;
 import uma.autopsy.Cases.Models.Case;
 import uma.autopsy.Devices.Device;
 import uma.autopsy.Devices.DeviceRepository;
