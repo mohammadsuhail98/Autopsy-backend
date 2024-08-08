@@ -10,6 +10,7 @@ import java.io.File;
 import java.util.*;
 import org.sleuthkit.datamodel.SleuthkitCase;
 import org.sleuthkit.datamodel.TskCoreException;
+import uma.autopsy.Exceptions.BadRequestException;
 import uma.autopsy.Exceptions.CaseAlreadyExistsException;
 import uma.autopsy.Exceptions.CaseDoesNotExistException;
 import uma.autopsy.Cases.Models.Case;
@@ -69,12 +70,12 @@ public class CaseServiceImp implements CaseService {
         return deviceDirPath;
     }
 
-    public Case getCase(int id){
-        Optional<Case> caseOptional = caseRepository.findById(id);
+    public Case getCase(int id, String deviceId){
+        Optional<Case> caseOptional = caseRepository.findByIdAndDeviceId(id, deviceId);
         if (caseOptional.isPresent()) {
             return caseOptional.get();
         } else {
-            throw new RuntimeException(STR."Case not found with id: \{id}");
+            throw new CaseDoesNotExistException(STR."Case not found with id: \{id}");
         }
     }
 
@@ -86,12 +87,13 @@ public class CaseServiceImp implements CaseService {
         return caseRepository.findByDeviceId(deviceId);
     }
 
-    public void deleteCaseById(int id){
-        Optional<Case> existingCase = caseRepository.findById(id);
-        if (existingCase.isEmpty()) {
-            throw new CaseDoesNotExistException(STR."Case with id \{id} does not exist.");
+    public void deleteCaseByIdAndDeviceId(int id, String deviceId) {
+        Optional<Case> caseEntity = caseRepository.findByIdAndDeviceId(id, deviceId);
+        if (caseEntity.isPresent()) {
+            caseRepository.deleteById(id);
+        } else {
+            throw new CaseDoesNotExistException(STR."Case not found with id: \{id}");
         }
-        caseRepository.deleteById(id);
     }
 
 

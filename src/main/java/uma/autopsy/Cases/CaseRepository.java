@@ -12,5 +12,5 @@ public interface CaseRepository extends JpaRepository<Case, Integer>  {
     Optional<Case> findByName(String name);
     Optional<Case> findByNameAndDeviceId(String name, String deviceId);
     List<Case> findByDeviceId(String deviceId);
-
+    Optional<Case> findByIdAndDeviceId(int id, String deviceId);
 }

@@ -26,14 +26,14 @@ public class CaseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCase(@PathVariable int id) {
-        Case caseEntity = caseService.getCase(id);
+    public ResponseEntity<?> getCase(@PathVariable int id, @RequestHeader("deviceId") String deviceId) {
+        Case caseEntity = caseService.getCase(id, deviceId);
         return new ResponseEntity<>(caseEntity, HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCaseById(@PathVariable int id) {
-        caseService.deleteCaseById(id);
+    public ResponseEntity<?> deleteCaseById(@PathVariable int id, @RequestHeader("deviceId") String deviceId) {
+        caseService.deleteCaseByIdAndDeviceId(id, deviceId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
