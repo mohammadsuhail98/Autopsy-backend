@@ -5,6 +5,11 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import org.sleuthkit.datamodel.SleuthkitCase;
 import org.sleuthkit.datamodel.TskCoreException;
@@ -31,7 +36,7 @@ public class CaseServiceImp implements CaseService {
         caseEntity.setDevice(getOrCreateDevice(caseEntity));
         try {
             SleuthkitCase skCase = SleuthkitCase.newCase(STR."\{getCaseDir(caseEntity.getDeviceId())}/\{caseEntity.getName()}");
-            caseEntity.setCasePath(skCase.getDbDirPath());
+            caseEntity.setCasePath(STR."\{skCase.getDbDirPath()}/\{skCase.getDatabaseName()}");
         } catch (TskCoreException e) {
             throw new RuntimeException(e);
         }
@@ -84,13 +89,57 @@ public class CaseServiceImp implements CaseService {
     }
 
     public void deleteCaseByIdAndDeviceId(int id, String deviceId) {
-        Optional<Case> caseEntity = caseRepository.findByIdAndDeviceId(id, deviceId);
-        if (caseEntity.isPresent()) {
+        Optional<Case> caseEntityOptional = caseRepository.findByIdAndDeviceId(id, deviceId);
+        if (caseEntityOptional.isPresent()) {
+            Case caseEntity = caseEntityOptional.get();
+            deleteCaseFile(caseEntity.getCasePath());
             caseRepository.deleteById(id);
         } else {
             throw new CaseDoesNotExistException(STR."Case not found with id: \{id}");
         }
     }
 
+    private void deleteCaseFile(String caseFilePath) {
+        try {
+            Path path = Paths.get(caseFilePath);
+            Files.deleteIfExists(path);
+            System.out.println(path.getParent());
+            deleteDirIfEmpty(path.getParent());
+        } catch (IOException e) {
+            throw new RuntimeException(STR."Failed to delete case file: \{caseFilePath}", e);
+        }
+    }
+
+    private void deleteDirIfEmpty(Path directory) {
+        try {
+            if (isDirectoryEmpty(directory)) {
+                Files.delete(directory);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete directory: " + directory, e);
+        }
+    }
+
+    private boolean isDirectoryEmpty(Path directory) {
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(directory)) {
+            for (Path path : directoryStream) {
+                // delete hidden files like .DS_Store
+                if (Files.isHidden(path) || path.getFileName().toString().equals(".DS_Store")) {
+                    Files.delete(path);
+                } else {
+                    return false; // Found a non-hidden file, so the directory is not empty
+                }
+            }
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to check directory: " + directory, e);
+        }
+
+        // Re-check directory contents to confirm it is empty
+        try (DirectoryStream<Path> finalDirectoryStream = Files.newDirectoryStream(directory)) {
+            return !finalDirectoryStream.iterator().hasNext();
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to re-check directory: " + directory, e);
+        }
+    }
 
 }
