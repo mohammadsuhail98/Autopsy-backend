@@ -1,6 +1,7 @@
 package uma.autopsy.Cases;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -10,10 +11,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.validation.annotation.Validated;
+import uma.autopsy.DataSource.DataSource;
 import uma.autopsy.Devices.Device;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Builder
 @Entity
@@ -66,6 +69,10 @@ public class Case {
 
     @Column(name="examiner_notes")
     private String examinerNotes;
+
+    @OneToMany(mappedBy = "caseEntity", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<DataSource> dataSourceList;
 
     public void setDevice(Device device) {
         this.device = device;
