@@ -31,18 +31,15 @@ public class DataSource {
     @Column(name="file_type")
     private int fileType;
 
-    @NotBlank(message = "File is mandatory")
-    @Column(name="file_path")
-    private String filePath;
-
     @Column(name="ignore_orphan_files")
     private boolean ignoreOrphanFiles;
 
-    @NotBlank(message = "Time Zone is mandatory")
+    @Column(name="add_unalloc_space")
+    private boolean addUnAllocSpace;
+
     @Column(name="time_zone")
     private String timeZone;
 
-    @NotBlank(message = "Sector Size is mandatory")
     @Column(name="sector_size")
     private int sectorSize;
 

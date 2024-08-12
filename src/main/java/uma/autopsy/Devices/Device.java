@@ -21,7 +21,7 @@ public class Device {
     @Column(name="id")
     private int id;
 
-    @Column(name="hardware_id")
+    @Column(name="hardware_id", unique = true)
     private String hardwareId;
 
     @OneToMany(mappedBy = "device")
