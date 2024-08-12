@@ -80,6 +80,11 @@
 			<version>4.12.1</version>
 		</dependency>
 		<dependency>
+			<groupId>org.sleuthkit</groupId>
+			<artifactId>autopsy-core</artifactId>
+			<version>4.21.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>31.1-jre</version>
@@ -129,6 +134,47 @@
 			<artifactId>SparseBitSet</artifactId>
 			<version>1.1</version>
 		</dependency>
+		<dependency>
+			<groupId>org.netbeans.api</groupId>
+			<artifactId>org-openide-dialogs</artifactId>
+			<version>RELEASE220</version>
+		</dependency>
+		<dependency>
+			<groupId>org.netbeans.api</groupId>
+			<artifactId>org-openide-util</artifactId>
+			<version>RELEASE220</version>
+		</dependency>
+		<dependency>
+			<groupId>org.netbeans.api</groupId>
+			<artifactId>org-openide-util-lookup</artifactId>
+			<version>RELEASE220</version>
+		</dependency>
+		<dependency>
+			<groupId>org.netbeans.api</groupId>
+			<artifactId>org-openide-filesystems</artifactId>
+			<version>RELEASE220</version>
+		</dependency>
+		<dependency>
+			<groupId>org.netbeans.api</groupId>
+			<artifactId>org-openide-modules</artifactId>
+			<version>RELEASE220</version>
+		</dependency>
+		<dependency>
+			<groupId>org.netbeans.api</groupId>
+			<artifactId>org-openide-windows</artifactId>
+			<version>RELEASE220</version>
+		</dependency>
+		<dependency>
+			<groupId>org.netbeans.api</groupId>
+			<artifactId>org-openide-util-enumerations</artifactId>
+			<version>RELEASE130</version>
+		</dependency>
+		<dependency>
+			<groupId>org.netbeans.api</groupId>
+			<artifactId>org-openide-awt</artifactId>
+			<version>RELEASE220</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -141,6 +187,9 @@
 					<source>22</source>
 					<target>22</target>
 					<release>22</release>
+					<compilerArgs>
+						<arg>--enable-preview</arg>
+					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>
