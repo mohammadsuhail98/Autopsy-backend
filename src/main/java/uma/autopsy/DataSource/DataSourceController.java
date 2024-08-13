@@ -43,20 +43,25 @@ public class DataSourceController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DataSource>> getAllDataSources(@PathVariable("caseId") int caseId) {
-        List<DataSource> dataSources = dataSourceService.getAllDataSourcesByCaseId(caseId);
+    public ResponseEntity<List<DataSource>> getAllDataSources(@PathVariable("caseId") int caseId,
+                                                              @RequestHeader("deviceId") String deviceId) {
+        List<DataSource> dataSources = dataSourceService.getAllDataSourcesByCaseId(caseId, deviceId);
         return new ResponseEntity<>(dataSources, HttpStatus.OK);
     }
 
     @GetMapping("/{dataSourceId}")
-    public ResponseEntity<DataSource> getDataSourceById(@PathVariable("caseId") int caseId, @PathVariable("dataSourceId") int dataSourceId) {
-        DataSource dataSource = dataSourceService.getDataSourceById(caseId, dataSourceId);
+    public ResponseEntity<DataSource> getDataSourceById(@PathVariable("caseId") int caseId,
+                                                        @PathVariable("dataSourceId") int dataSourceId,
+                                                        @RequestHeader("deviceId") String deviceId) {
+        DataSource dataSource = dataSourceService.getDataSourceById(caseId, dataSourceId, deviceId);
         return new ResponseEntity<>(dataSource, HttpStatus.OK);
     }
 
     @DeleteMapping("/{dataSourceId}")
-    public ResponseEntity<Void> deleteDataSource(@PathVariable("caseId") int caseId, @PathVariable("dataSourceId") int dataSourceId) {
-        dataSourceService.deleteDataSource(caseId, dataSourceId);
+    public ResponseEntity<Void> deleteDataSource(@PathVariable("caseId") int caseId,
+                                                 @PathVariable("dataSourceId") int dataSourceId,
+                                                 @RequestHeader("deviceId") String deviceId) {
+        dataSourceService.deleteDataSource(caseId, dataSourceId, deviceId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

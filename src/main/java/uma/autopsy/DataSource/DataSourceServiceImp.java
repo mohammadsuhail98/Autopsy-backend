@@ -8,10 +8,12 @@ import org.springframework.web.multipart.MultipartFile;
 import uma.autopsy.Cases.Case;
 import uma.autopsy.Cases.CaseRepository;
 import uma.autopsy.Exceptions.CaseDoesNotExistException;
+import uma.autopsy.Exceptions.ResourceNotFoundException;
 import uma.autopsy.GlobalProperties.GlobalProperties;
 
 import java.io.*;
 import java.io.File;
+import java.lang.module.ResolutionException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -39,8 +41,9 @@ public class DataSourceServiceImp implements DataSourceService {
         String tempFileDir = getTempFileDir(file, caseEntity);
         SleuthkitCase skcase = null;
         CaseDbTransaction transaction = null;
+        var imageType = TskData.TSK_IMG_TYPE_ENUM.TSK_IMG_TYPE_DETECT;
         try {
-            DiskImageValidator.validateDiskImage(file);
+            imageType = DiskImageValidator.validateDiskImage(file);
             file.transferTo(new File(tempFileDir));
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -49,25 +52,16 @@ public class DataSourceServiceImp implements DataSourceService {
         try {
             skcase = SleuthkitCase.openCase(caseEntity.getCasePath());
 
-            var imageType = TskData.TSK_IMG_TYPE_ENUM.TSK_IMG_TYPE_DETECT;
             var sectorSize = dataSource.getSectorSize();
             var size = file.getSize();
             var displayName = file.getOriginalFilename();
             var pathList = new ArrayList<String>();
             pathList.add(tempFileDir);
             var timeZone = dataSource.getTimeZone();
-            var md5Hash = "";
-            if (dataSource.getMd5Hash() != null && !dataSource.getMd5Hash().isEmpty()) {
-                md5Hash = dataSource.getMd5Hash();
-            }
-            var sha1Hash = "";
-            if (dataSource.getSha1Hash() != null && !dataSource.getSha1Hash().isEmpty()) {
-                sha1Hash = dataSource.getSha1Hash();
-            }
-            var sha256Hash = "";
-            if (dataSource.getSha256Hash() != null && !dataSource.getSha256Hash().isEmpty()) {
-                sha256Hash = dataSource.getSha256Hash();
-            }
+            var md5Hash = validHash(dataSource.getMd5Hash());
+            var sha1Hash = validHash(dataSource.getSha1Hash());
+            var sha256Hash = validHash(dataSource.getSha256Hash());
+            var processUUID = UUID.randomUUID().toString();
             transaction = skcase.beginTransaction();
 
             Image image = skcase.addImage(imageType, sectorSize, size, displayName, pathList, timeZone, md5Hash, sha1Hash, sha256Hash, UUID.randomUUID().toString(), transaction);
@@ -78,14 +72,30 @@ public class DataSourceServiceImp implements DataSourceService {
                 var addDataSourceCallbacks = new AddDataSourceCallbacks() {
                     @Override
                     public void onFilesAdded(List<Long> list) {
-                        System.out.println(list);
+
                     }
                 };
                 SleuthkitJNI.CaseDbHandle.AddImageProcess process = skcase.makeAddImageProcess(dataSource.getTimeZone(), dataSource.isAddUnAllocSpace(), dataSource.isIgnoreOrphanFiles(), "");
-                process.run(UUID.randomUUID().toString(),image, (int) image.getSsize(), addDataSourceCallbacks);
+                process.run(processUUID,image, (int) image.getSsize(), addDataSourceCallbacks);
             } catch (TskDataException ex) {
-                throw new RuntimeException(STR."Error during addImageProcess: \{ex.getMessage()}");
+                if (!ex.getMessage().contains("Cannot determine file system type")) {
+                    deleteTempFile(tempFileDir);
+                    throw new RuntimeException(STR."Error during addImageProcess: \{ex.getMessage()}");
+                } else {
+                    dataSource.setErrors("Errors occurred while ingesting image: Cannot determine file system type");
+                }
             }
+
+            dataSource.setName(image.getName());
+            dataSource.setDataSourceId(image.getId());
+            dataSource.setDataSourceDeviceId(processUUID);
+            dataSource.setSize(image.getSize());
+            dataSource.setSectorSize((int) image.getSsize());
+            dataSource.setFileType(image.getType().getName());
+            dataSource.setMd5Hash(image.getMd5());
+            dataSource.setSha1Hash(image.getSha1());
+            dataSource.setSha256Hash(image.getSha256());
+            dataSource.setTimeZone(image.getTimeZone());
 
             deleteTempFile(tempFileDir);
         } catch (TskCoreException e) {
@@ -105,6 +115,12 @@ public class DataSourceServiceImp implements DataSourceService {
         return dataSourceRepository.save(dataSource);
     }
 
+    String validHash(String hash){
+        if (hash != null && !hash.isEmpty() && !hash.isBlank())
+            return hash;
+        return "";
+    }
+
     boolean validateDeviceId(String deviceId, Case caseEntity){
         return deviceId.equalsIgnoreCase(caseEntity.getDeviceId());
     }
@@ -116,6 +132,10 @@ public class DataSourceServiceImp implements DataSourceService {
         return STR."\{caseParentDir}/\{tempFileName}";
     }
 
+    public List<DataSource> getAllDataSourcesByCaseId(int caseId, String deviceId) {
+        return dataSourceRepository.findByCaseEntity_Id(caseId);
+    }
+
     private void deleteTempFile(String filePath) {
         try {
             Path path = Paths.get(filePath);
@@ -125,17 +145,16 @@ public class DataSourceServiceImp implements DataSourceService {
         }
     }
 
-    public List<DataSource> getAllDataSourcesByCaseId(int caseId) {
-        return dataSourceRepository.findByCaseEntity_Id(caseId);
-    }
-
-    public DataSource getDataSourceById(int caseId, int dataSourceId) {
+    public DataSource getDataSourceById(int caseId, int dataSourceId,  String deviceId) {
+        Case caseEntity = caseRepository.findById(caseId)
+                .orElseThrow(() -> new CaseDoesNotExistException(STR."Case not found for this id : \{caseId}"));
+        if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
         return dataSourceRepository.findByIdAndCaseEntity_Id(dataSourceId, caseId)
-                .orElseThrow(() -> new RuntimeException("DataSource not found for this id and caseId :: " + dataSourceId + ", " + caseId));
+                .orElseThrow(() -> new ResourceNotFoundException("DataSource not found for this id: " + dataSourceId));
     }
 
-    public void deleteDataSource(int caseId, int dataSourceId) {
-        DataSource dataSource = getDataSourceById(caseId, dataSourceId);
+    public void deleteDataSource(int caseId, int dataSourceId,  String deviceId) {
+        DataSource dataSource = getDataSourceById(caseId, dataSourceId, deviceId);
         dataSourceRepository.delete(dataSource);
     }
 

@@ -2,8 +2,10 @@ package uma.autopsy.Devices;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import uma.autopsy.Cases.Case;
 
+import java.sql.Timestamp;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -23,6 +25,10 @@ public class Device {
 
     @Column(name="hardware_id", unique = true)
     private String hardwareId;
+
+    @CreationTimestamp
+    @Column(name="creation_date")
+    private Timestamp creationDate;
 
     @OneToMany(mappedBy = "device")
     @JsonManagedReference

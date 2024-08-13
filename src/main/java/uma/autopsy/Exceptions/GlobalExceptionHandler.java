@@ -1,5 +1,6 @@
 package uma.autopsy.Exceptions;
 
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -46,6 +47,15 @@ public class GlobalExceptionHandler {
                 badRequestException.getMessage(),
                 request.getDescription(false));
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public final ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException resourceNotFoundException, WebRequest request) {
+        ErrorResponse exceptionResponse = new ErrorResponse(
+                HttpStatus.NOT_FOUND.value(),
+                resourceNotFoundException.getMessage(),
+                request.getDescription(false));
+        return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
     }
 
 }

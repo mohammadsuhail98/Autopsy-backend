@@ -16,7 +16,7 @@ public class CaseController {
     private CaseService caseService;
 
     @PostMapping
-    public ResponseEntity<?> createCase(@Valid @ModelAttribute @RequestBody Case caseEntity) {
+    public ResponseEntity<?> createCase(@Valid @ModelAttribute Case caseEntity) {
         return new ResponseEntity<>(caseService.createCase(caseEntity), HttpStatus.OK);
     }
 
