@@ -14,9 +14,18 @@ public class DSContentController {
     private DSContentService dsContentService;
 
     @GetMapping
-    public ResponseEntity<FileNode> getDataSource(@PathVariable("dataSourceId") int dataSourceId,
-                                                        @RequestHeader("deviceId") String deviceId) {
+    public ResponseEntity<FileNode> getDataSourceContent(@PathVariable("dataSourceId") int dataSourceId,
+                                                         @RequestHeader("deviceId") String deviceId) {
         FileNode fileContent = dsContentService.getDataSourceContentById(dataSourceId, deviceId);
         return new ResponseEntity<>(fileContent, HttpStatus.OK);
     }
+
+    @GetMapping("file")
+    public ResponseEntity<FileNode> getFileContent(@PathVariable("dataSourceId") int dataSourceId,
+                                               @RequestParam("fileId") int fileId,
+                                               @RequestHeader("deviceId") String deviceId) {
+        FileNode fileContent = dsContentService.getFileContent(dataSourceId, deviceId, fileId);
+        return new ResponseEntity<>(fileContent, HttpStatus.OK);
+    }
+
 }
