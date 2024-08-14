@@ -48,48 +48,77 @@ public class DSContentServiceImp implements DSContentService {
 
         String caseDir = dataSource.getCaseEntity().getCasePath();
         SleuthkitCase skcase = null;
-        FileNode fileNode = new FileNode();
 
         try {
             skcase = SleuthkitCase.openCase(caseDir);
             AbstractFile content = skcase.getAbstractFileById(fileId);
-            fileNode = getFileNode(content);
+            return getFileNode(content);
         } catch (TskCoreException e) {
             throw new RuntimeException(e);
         }
-
-        return fileNode;
     }
 
     FileNode getFileNode(AbstractFile content) throws TskCoreException {
-        FileNode fileNode = new FileNode();
+        return new FileNode(content.getName(), content.getUniquePath(), content.getType().getName(), content.getId(), content.getUid(),
+                content.getGid(), content.isDir(), content.isFile(), content.isRoot(), content.getSize(), content.getDirFlagAsString(),
+                content.getMetaFlagsAsString(), content.getKnown().getName(), content.getMd5Hash(), content.getSha1Hash(), content.getSha256Hash(),
+                content.getMIMEType(), content.getNameExtension(), content.getType().getFileType(), content.getMtimeAsDate(), content.getCtimeAsDate(),
+                content.getAtimeAsDate(), content.getCrtimeAsDate(),
+                content.getFileSystem().getFsType().getDisplayName());
+    }
+    @Override
+    public byte[] getHexFile(int dataSourceId, String deviceId, int fileId){
+        DataSource dataSource = dsContentRepository.findById(dataSourceId)
+                .orElseThrow(() -> new ResourceNotFoundException("DataSource not found for this id: " + dataSourceId));
+        if (!validateDeviceId(deviceId, dataSource)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
-        fileNode.setId(content.getId());
-        fileNode.setName(content.getName());
-        fileNode.setPath(content.getUniquePath());
-        fileNode.setUid(content.getUid());
-        fileNode.setGid(content.getGid());
-        fileNode.setDir(content.isDir());
-        fileNode.setFile(content.isFile());
-        fileNode.setRoot(content.isRoot());
-        fileNode.setSize(content.getSize());
-        fileNode.setType(content.getType().getName());
-        fileNode.setFlagsDir(content.getDirFlagAsString());
-        fileNode.setFlagsMeta(content.getMetaFlagsAsString());
-        fileNode.setKnown(content.getKnown().getName());
-        fileNode.setMd5Hash(content.getMd5Hash());
-        fileNode.setSha1Hash(content.getSha1Hash());
-        fileNode.setSha256Hash(content.getSha256Hash());
-        fileNode.setMimeType(content.getMIMEType());
-        fileNode.setExtension(content.getNameExtension());
-        fileNode.setFileType(content.getType().getFileType());
-        fileNode.setMTime(content.getMtimeAsDate());
-        fileNode.setCTime(content.getCtimeAsDate());
-        fileNode.setATime(content.getAtimeAsDate());
-        fileNode.setCrTime(content.getCrtimeAsDate());
-        fileNode.setFileSystemType(content.getFileSystem().getFsType().getDisplayName());
+        String caseDir = dataSource.getCaseEntity().getCasePath();
+        System.out.println(caseDir);
+        SleuthkitCase skcase = null;
 
-        return fileNode;
+        try {
+            skcase = SleuthkitCase.openCase(caseDir);
+            AbstractFile file = skcase.getAbstractFileById(fileId);
+            byte[] contentBytes = new byte[(int) file.getSize()];
+            file.read(contentBytes, 0, contentBytes.length);
+            return toHexString(contentBytes).getBytes();
+
+        } catch (TskCoreException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private String toHexString(byte[] bytes) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < bytes.length; i += 16) {
+            sb.append(String.format("0x%08X: ", i));
+
+            // Hex values
+            for (int j = 0; j < 16; j++) {
+                if (i + j < bytes.length) {
+                    sb.append(String.format("%02X ", bytes[i + j]));
+                } else {
+                    sb.append("   ");
+                }
+            }
+
+            sb.append(" ");
+
+            // ASCII values
+            for (int j = 0; j < 16; j++) {
+                if (i + j < bytes.length) {
+                    char c = (char) bytes[i + j];
+                    if (c < 32 || c > 126) {
+                        sb.append('.');
+                    } else {
+                        sb.append(c);
+                    }
+                }
+            }
+
+            sb.append('\n');
+        }
+        return sb.toString();
     }
 
     boolean validateDeviceId(String deviceId, DataSource dataSourceEntity){
