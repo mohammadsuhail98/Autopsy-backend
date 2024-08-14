@@ -79,7 +79,6 @@ public class DataSourceServiceImp implements DataSourceService {
                 process.run(processUUID,image, (int) image.getSsize(), addDataSourceCallbacks);
             } catch (TskDataException ex) {
                 if (!ex.getMessage().contains("Cannot determine file system type")) {
-                    deleteTempFile(tempFileDir);
                     throw new RuntimeException(STR."Error during addImageProcess: \{ex.getMessage()}");
                 } else {
                     dataSource.setErrors("Errors occurred while ingesting image: Cannot determine file system type");
@@ -97,7 +96,6 @@ public class DataSourceServiceImp implements DataSourceService {
             dataSource.setSha256Hash(image.getSha256());
             dataSource.setTimeZone(image.getTimeZone());
 
-            deleteTempFile(tempFileDir);
         } catch (TskCoreException e) {
             System.out.println(STR."Exception caught: \{e.getMessage()}");
             if (transaction != null) {
@@ -126,7 +124,7 @@ public class DataSourceServiceImp implements DataSourceService {
     }
 
     String getTempFileDir(MultipartFile file, Case caseEntity){
-        String caseParentDir = STR."\{globalProperties.getBaseDir()}/\{caseEntity.getDeviceId()}";
+        String caseParentDir = STR."\{globalProperties.getBaseDir()}/\{caseEntity.getDeviceId()}/\{caseEntity.getName()}";
         String uuid = UUID.randomUUID().toString().replace("-", "");
         String tempFileName = STR."\{uuid}-\{file.getOriginalFilename()}";
         return STR."\{caseParentDir}/\{tempFileName}";

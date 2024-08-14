@@ -35,7 +35,7 @@ public class CaseServiceImp implements CaseService {
         caseExistWithDeviceId(caseEntity);
         caseEntity.setDevice(getOrCreateDevice(caseEntity));
         try {
-            SleuthkitCase skCase = SleuthkitCase.newCase(STR."\{getCaseDir(caseEntity.getDeviceId())}/\{caseEntity.getName()}");
+            SleuthkitCase skCase = SleuthkitCase.newCase(STR."\{getCaseDir(caseEntity.getDeviceId(), caseEntity.getName())}/\{caseEntity.getName()}");
             caseEntity.setCasePath(STR."\{skCase.getDbDirPath()}/\{skCase.getDatabaseName()}");
         } catch (TskCoreException e) {
             throw new RuntimeException(e);
@@ -62,8 +62,8 @@ public class CaseServiceImp implements CaseService {
         return device.get();
     }
 
-    String getCaseDir(String deviceId){
-        String deviceDirPath = globalProperties.getBaseDir() + "/" + deviceId;
+    String getCaseDir(String deviceId, String caseName){
+        String deviceDirPath = globalProperties.getBaseDir() + "/" + deviceId + "/" + caseName;
         File deviceDir = new File(deviceDirPath);
         if (!deviceDir.exists()) {
             deviceDir.mkdirs();
