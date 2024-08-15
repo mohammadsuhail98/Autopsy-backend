@@ -32,7 +32,7 @@ public class DSContentController {
     }
 
     @GetMapping("/file_hex")
-    public ResponseEntity<InputStreamResource> downloadFile(@PathVariable("dataSourceId") int dataSourceId,
+    public ResponseEntity<InputStreamResource> getFileHex(@PathVariable("dataSourceId") int dataSourceId,
                                                             @RequestParam("fileId") int fileId,
                                                             @RequestHeader("deviceId") String deviceId) throws IOException {
         byte[] fileBytes = dsContentService.getHexFile(dataSourceId, deviceId, fileId);
@@ -40,6 +40,23 @@ public class DSContentController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=file.hex");
+        headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(fileBytes.length)
+                .body(resource);
+    }
+
+    @GetMapping("/file_strings")
+    public ResponseEntity<InputStreamResource> getFileText(@PathVariable("dataSourceId") int dataSourceId,
+                                                            @RequestParam("fileId") int fileId,
+                                                            @RequestHeader("deviceId") String deviceId) throws IOException {
+        byte[] fileBytes = dsContentService.getTextFile(dataSourceId, deviceId, fileId);
+        InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(fileBytes));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=file.txt");
         headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
         return ResponseEntity.ok()
