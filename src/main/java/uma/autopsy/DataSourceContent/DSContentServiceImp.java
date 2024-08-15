@@ -1,15 +1,18 @@
 package uma.autopsy.DataSourceContent;
 
+import org.sleuthkit.autopsy.contentviewers.Metadata;
+import org.sleuthkit.autopsy.coreutils.FileTypeUtils;
 import org.sleuthkit.autopsy.coreutils.StringExtract;
-import org.sleuthkit.datamodel.AbstractFile;
-import org.sleuthkit.datamodel.SleuthkitCase;
-import org.sleuthkit.datamodel.TskCoreException;
+import org.sleuthkit.datamodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sleuthkit.autopsy.coreutils.StringExtract.*;
 import uma.autopsy.Cases.CaseRepository;
 import uma.autopsy.DataSource.DataSource;
 import uma.autopsy.Exceptions.ResourceNotFoundException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class DSContentServiceImp implements DSContentService {
@@ -54,6 +57,7 @@ public class DSContentServiceImp implements DSContentService {
         try {
             skcase = SleuthkitCase.openCase(caseDir);
             AbstractFile content = skcase.getAbstractFileById(fileId);
+
             return getFileNode(content);
         } catch (TskCoreException e) {
             throw new RuntimeException(e);
@@ -61,12 +65,18 @@ public class DSContentServiceImp implements DSContentService {
     }
 
     FileNode getFileNode(AbstractFile content) throws TskCoreException {
+        List<String> metaDataText = new ArrayList<>();
+        if (content instanceof FsContent) {
+            FsContent fsContent = (FsContent) content;
+            metaDataText = fsContent.getMetaDataText();
+        }
+
         return new FileNode(content.getName(), content.getUniquePath(), content.getType().getName(), content.getId(), content.getUid(),
                 content.getGid(), content.isDir(), content.isFile(), content.isRoot(), content.getSize(), content.getDirFlagAsString(),
                 content.getMetaFlagsAsString(), content.getKnown().getName(), content.getMd5Hash(), content.getSha1Hash(), content.getSha256Hash(),
                 content.getMIMEType(), content.getNameExtension(), content.getType().getFileType(), content.getMtimeAsDate(), content.getCtimeAsDate(),
                 content.getAtimeAsDate(), content.getCrtimeAsDate(),
-                content.getFileSystem().getFsType().getDisplayName());
+                content.getFileSystem().getFsType().getDisplayName(), metaDataText);
     }
     @Override
     public byte[] getHexFile(int dataSourceId, String deviceId, int fileId){

@@ -1,6 +1,9 @@
 package uma.autopsy.DataSourceContent;
 import org.sleuthkit.datamodel.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DirectoryTreeBuilder {
 
     public FileNode buildTree(Content content) throws TskCoreException {
@@ -12,9 +15,20 @@ public class DirectoryTreeBuilder {
         short fileType = -1;
         long id = -1, size = -1;
         int uid = -1, gid = -1;
+        List<String> metaDataText = new ArrayList<>();
         id = content.getId();
         name = content.getName();
         path = content.getUniquePath();
+
+        /**
+         * Gets a text-based description of the file's metadata. This is the same
+         * content as the TSK istat tool produces and is different information for
+         * each type of file system.
+         */
+        if (content instanceof FsContent) {
+            FsContent fsContent = (FsContent) content;
+            metaDataText = fsContent.getMetaDataText();
+        }
 
         if (content instanceof AbstractFile) {
             AbstractFile file = (AbstractFile) content;
@@ -43,7 +57,8 @@ public class DirectoryTreeBuilder {
 
         FileNode node = new FileNode(name, path, type, id, uid, gid, isDir, isFile,
                 isRoot, size, flagsDir, flagsMeta, known, md5Hash, sha1Hash,
-                sha256Hash, mimeType, extension, fileType, mTime, cTime, aTime, crTime, fileSystemType);
+                sha256Hash, mimeType, extension, fileType, mTime, cTime, aTime,
+                crTime, fileSystemType, metaDataText);
 
         for (Content child : content.getChildren()) {
             node.addChild(buildTree(child));

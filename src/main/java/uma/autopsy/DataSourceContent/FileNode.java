@@ -38,13 +38,15 @@ public class FileNode {
     private String aTime = "";
     private String crTime = "";
     private String fileSystemType = "";
+    private List<String> metaDataText;
 
     public FileNode(String name, String path, String type, long id,
                     int uid, int gid, boolean isDir, boolean isFile, boolean isRoot,
                     long size, String flagsDir, String flagsMeta,
                     String known, String md5Hash, String sha1Hash,
                     String sha256Hash, String mimeType, String extension,
-                    short fileType, String mTime, String cTime, String aTime, String crTime, String fileSystemType) {
+                    short fileType, String mTime, String cTime, String aTime,
+                    String crTime, String fileSystemType, List<String> metaDataText) {
         this.name = name;
         this.path = path;
         this.type = type;
@@ -69,6 +71,7 @@ public class FileNode {
         this.aTime = aTime;
         this.crTime = crTime;
         this.fileSystemType = fileSystemType;
+        this.metaDataText = metaDataText;
         this.children = new ArrayList<>();
     }
 
