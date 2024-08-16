@@ -1,6 +1,8 @@
 package uma.autopsy.DataSourceContent;
 
 
+import org.sleuthkit.datamodel.AbstractFile;
+import org.sleuthkit.datamodel.TskCoreException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
@@ -8,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 @RestController
 @RequestMapping(value = "/api/datasource/{dataSourceId}/content")
@@ -62,6 +66,31 @@ public class DSContentController {
         return ResponseEntity.ok()
                 .headers(headers)
                 .contentLength(fileBytes.length)
+                .body(resource);
+    }
+
+    @GetMapping("/file_application")
+    public ResponseEntity<InputStreamResource> getFileApplication(@PathVariable("dataSourceId") int dataSourceId,
+                                                           @RequestParam("fileId") int fileId,
+                                                           @RequestHeader("deviceId") String deviceId) throws IOException, TskCoreException {
+        AbstractFile file = dsContentService.getApplicationFile(dataSourceId, deviceId, fileId);
+        byte[] contentBytes = new byte[(int) file.getSize()];
+        file.read(contentBytes, 0, contentBytes.length);
+
+        InputStreamResource resource = new InputStreamResource(new ByteArrayInputStream(contentBytes));
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getName() + "\"");
+
+        String mimeType = Files.probeContentType(Paths.get(file.getName()));
+        if (mimeType == null) {
+            mimeType = MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
+        headers.add(HttpHeaders.CONTENT_TYPE, mimeType);
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentLength(contentBytes.length)
                 .body(resource);
     }
 

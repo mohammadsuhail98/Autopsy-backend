@@ -4,6 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.sleuthkit.autopsy.modules.filetypeid.FileTypeDetector;
+import org.sleuthkit.datamodel.AbstractFile;
+import org.sleuthkit.datamodel.FsContent;
+import org.sleuthkit.datamodel.TskCoreException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +33,6 @@ public class FileNode {
     private String md5Hash;
     private String sha1Hash;
     private String sha256Hash;
-    private String mimeType;
     private String extension;
     private short fileType;
     private List<FileNode> children;
@@ -39,12 +42,13 @@ public class FileNode {
     private String crTime = "";
     private String fileSystemType = "";
     private List<String> metaDataText;
+    private MimeType mimeType;
 
     public FileNode(String name, String path, String type, long id,
                     int uid, int gid, boolean isDir, boolean isFile, boolean isRoot,
                     long size, String flagsDir, String flagsMeta,
                     String known, String md5Hash, String sha1Hash,
-                    String sha256Hash, String mimeType, String extension,
+                    String sha256Hash, MimeType mimeType, String extension,
                     short fileType, String mTime, String cTime, String aTime,
                     String crTime, String fileSystemType, List<String> metaDataText) {
         this.name = name;
@@ -77,6 +81,30 @@ public class FileNode {
 
     public void addChild(FileNode child) {
         this.children.add(child);
+    }
+
+    public static FileNode getFileNode(AbstractFile content) throws TskCoreException {
+        List<String> metaDataText = new ArrayList<>();
+        MimeType mimeType = new MimeType(SupportedMimeTypesUtil.MimeTypeList.NONE.getValue(), content.getMIMEType(), false);
+
+        if (content instanceof FsContent) {
+            FsContent fsContent = (FsContent) content;
+            metaDataText = fsContent.getMetaDataText();
+        }
+
+        try {
+            var detector = new FileTypeDetector();
+            mimeType = SupportedMimeTypesUtil.getMimeTypeModel(detector.getMIMEType(content));
+        } catch (FileTypeDetector.FileTypeDetectorInitException e) {
+            System.out.println(e.getLocalizedMessage());
+        }
+
+        return new FileNode(content.getName(), content.getUniquePath(), content.getType().getName(), content.getId(), content.getUid(),
+                content.getGid(), content.isDir(), content.isFile(), content.isRoot(), content.getSize(), content.getDirFlagAsString(),
+                content.getMetaFlagsAsString(), content.getKnown().getName(), content.getMd5Hash(), content.getSha1Hash(), content.getSha256Hash(),
+                mimeType, content.getNameExtension(), content.getType().getFileType(), content.getMtimeAsDate(), content.getCtimeAsDate(),
+                content.getAtimeAsDate(), content.getCrtimeAsDate(),
+                content.getFileSystem().getFsType().getDisplayName(), metaDataText);
     }
 
 }

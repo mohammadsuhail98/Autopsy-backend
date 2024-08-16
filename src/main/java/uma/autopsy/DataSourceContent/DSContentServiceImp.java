@@ -1,7 +1,5 @@
 package uma.autopsy.DataSourceContent;
 
-import org.sleuthkit.autopsy.contentviewers.Metadata;
-import org.sleuthkit.autopsy.coreutils.FileTypeUtils;
 import org.sleuthkit.autopsy.coreutils.StringExtract;
 import org.sleuthkit.datamodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +8,8 @@ import org.sleuthkit.autopsy.coreutils.StringExtract.*;
 import uma.autopsy.Cases.CaseRepository;
 import uma.autopsy.DataSource.DataSource;
 import uma.autopsy.Exceptions.ResourceNotFoundException;
+import uma.autopsy.Exceptions.UnsupportedMimeTypeException;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class DSContentServiceImp implements DSContentService {
@@ -58,25 +55,10 @@ public class DSContentServiceImp implements DSContentService {
             skcase = SleuthkitCase.openCase(caseDir);
             AbstractFile content = skcase.getAbstractFileById(fileId);
 
-            return getFileNode(content);
+            return FileNode.getFileNode(content);
         } catch (TskCoreException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    FileNode getFileNode(AbstractFile content) throws TskCoreException {
-        List<String> metaDataText = new ArrayList<>();
-        if (content instanceof FsContent) {
-            FsContent fsContent = (FsContent) content;
-            metaDataText = fsContent.getMetaDataText();
-        }
-
-        return new FileNode(content.getName(), content.getUniquePath(), content.getType().getName(), content.getId(), content.getUid(),
-                content.getGid(), content.isDir(), content.isFile(), content.isRoot(), content.getSize(), content.getDirFlagAsString(),
-                content.getMetaFlagsAsString(), content.getKnown().getName(), content.getMd5Hash(), content.getSha1Hash(), content.getSha256Hash(),
-                content.getMIMEType(), content.getNameExtension(), content.getType().getFileType(), content.getMtimeAsDate(), content.getCtimeAsDate(),
-                content.getAtimeAsDate(), content.getCrtimeAsDate(),
-                content.getFileSystem().getFsType().getDisplayName(), metaDataText);
     }
     @Override
     public byte[] getHexFile(int dataSourceId, String deviceId, int fileId){
@@ -100,6 +82,7 @@ public class DSContentServiceImp implements DSContentService {
         }
     }
 
+    @Override
     public byte[] getTextFile(int dataSourceId, String deviceId, int fileId){
         DataSource dataSource = dsContentRepository.findById(dataSourceId)
                 .orElseThrow(() -> new ResourceNotFoundException("DataSource not found for this id: " + dataSourceId));
@@ -123,6 +106,32 @@ public class DSContentServiceImp implements DSContentService {
             return res.getText().getBytes();
         } catch (TskCoreException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    public AbstractFile getApplicationFile(int dataSourceId, String deviceId, int fileId) {
+        DataSource dataSource = dsContentRepository.findById(dataSourceId)
+                .orElseThrow(() -> new ResourceNotFoundException("DataSource not found for this id: " + dataSourceId));
+        if (!validateDeviceId(deviceId, dataSource)) {  throw new RuntimeException("Not Authorized for this operation"); }
+
+        String caseDir = dataSource.getCaseEntity().getCasePath();
+        System.out.println(caseDir);
+        SleuthkitCase skcase = null;
+
+        try {
+            skcase = SleuthkitCase.openCase(caseDir);
+            AbstractFile file = skcase.getAbstractFileById(fileId);
+            FileNode fileNode = FileNode.getFileNode(file);
+
+            if (fileNode.getMimeType().isSupported()) {
+                return file;
+            } else {
+                throw new UnsupportedMimeTypeException("File type not supported");
+            }
+
+        } catch (TskCoreException e) {
+            throw new RuntimeException(e.getLocalizedMessage());
         }
     }
 
