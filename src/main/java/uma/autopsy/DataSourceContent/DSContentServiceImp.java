@@ -11,6 +11,7 @@ import uma.autopsy.DataSourceContent.Models.FileNode;
 import uma.autopsy.Exceptions.ResourceNotFoundException;
 import uma.autopsy.Exceptions.UnsupportedMimeTypeException;
 import uma.autopsy.Utils.DirectoryTreeBuilder;
+import uma.autopsy.Utils.HexExtractor;
 
 
 @Service
@@ -77,7 +78,7 @@ public class DSContentServiceImp implements DSContentService {
             AbstractFile file = skcase.getAbstractFileById(fileId);
             byte[] contentBytes = new byte[(int) file.getSize()];
             file.read(contentBytes, 0, contentBytes.length);
-            return toHexString(contentBytes).getBytes();
+            return HexExtractor.toHexString(contentBytes).getBytes();
 
         } catch (TskCoreException e) {
             throw new RuntimeException(e);
@@ -135,39 +136,6 @@ public class DSContentServiceImp implements DSContentService {
         } catch (TskCoreException e) {
             throw new RuntimeException(e.getLocalizedMessage());
         }
-    }
-
-    private String toHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < bytes.length; i += 16) {
-            sb.append(String.format("0x%08X: ", i));
-
-            // Hex values
-            for (int j = 0; j < 16; j++) {
-                if (i + j < bytes.length) {
-                    sb.append(String.format("%02X ", bytes[i + j]));
-                } else {
-                    sb.append("   ");
-                }
-            }
-
-            sb.append(" ");
-
-            // ASCII values
-            for (int j = 0; j < 16; j++) {
-                if (i + j < bytes.length) {
-                    char c = (char) bytes[i + j];
-                    if (c < 32 || c > 126) {
-                        sb.append('.');
-                    } else {
-                        sb.append(c);
-                    }
-                }
-            }
-
-            sb.append('\n');
-        }
-        return sb.toString();
     }
 
     boolean validateDeviceId(String deviceId, DataSource dataSourceEntity){
