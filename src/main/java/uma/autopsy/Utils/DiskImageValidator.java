@@ -1,4 +1,4 @@
-package uma.autopsy.DataSource;
+package uma.autopsy.Utils;
 
 import org.sleuthkit.datamodel.TskCoreException;
 import org.sleuthkit.datamodel.TskData;
@@ -10,15 +10,18 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.regex.Pattern;
 
-//            Adding a Disk Image
-//
-//            Autopsy supports disk images in the following formats:
-//
-//            Raw Single (For example: *.img, *.dd, *.raw, *.bin)
-//            Raw Split (For example: *.001, *.002, *.aa, *.ab, etc)
-//            EnCase (For example: *.e01, *.e02, etc)
-//            Virtual Machines (For example: *.vmdk, *.vhd)
 
+
+/*
+    Adding a Disk Image
+
+    Autopsy supports disk images in the following formats:
+
+    Raw Single (For example: *.img, *.dd, *.raw, *.bin)
+    Raw Split (For example: *.001, *.002, *.aa, *.ab, etc)
+    EnCase (For example: *.e01, *.e02, etc)
+    Virtual Machines (For example: *.vmdk, *.vhd)
+ */
 public class DiskImageValidator {
 
     // Patterns to match different file types

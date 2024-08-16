@@ -1,6 +1,9 @@
-package uma.autopsy.DataSourceContent;
+package uma.autopsy.Utils;
 import org.sleuthkit.autopsy.modules.filetypeid.FileTypeDetector;
 import org.sleuthkit.datamodel.*;
+import uma.autopsy.DataSourceContent.Models.FileNode;
+import uma.autopsy.DataSourceContent.Models.MimeType;
+import uma.autopsy.Utils.SupportedMimeTypesUtil;
 
 import java.util.ArrayList;
 import java.util.List;

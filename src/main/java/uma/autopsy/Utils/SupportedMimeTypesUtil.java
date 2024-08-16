@@ -1,4 +1,6 @@
-package uma.autopsy.DataSourceContent;
+package uma.autopsy.Utils;
+
+import uma.autopsy.DataSourceContent.Models.MimeType;
 
 import java.util.Arrays;
 import java.util.HashSet;

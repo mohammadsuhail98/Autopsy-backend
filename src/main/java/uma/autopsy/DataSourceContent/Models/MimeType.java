@@ -1,4 +1,4 @@
-package uma.autopsy.DataSourceContent;
+package uma.autopsy.DataSourceContent.Models;
 
 
 import lombok.AllArgsConstructor;

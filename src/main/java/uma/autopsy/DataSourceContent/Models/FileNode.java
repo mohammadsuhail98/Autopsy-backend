@@ -1,4 +1,4 @@
-package uma.autopsy.DataSourceContent;
+package uma.autopsy.DataSourceContent.Models;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,6 +8,7 @@ import org.sleuthkit.autopsy.modules.filetypeid.FileTypeDetector;
 import org.sleuthkit.datamodel.AbstractFile;
 import org.sleuthkit.datamodel.FsContent;
 import org.sleuthkit.datamodel.TskCoreException;
+import uma.autopsy.Utils.SupportedMimeTypesUtil;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,6 +1,7 @@
 package uma.autopsy.DataSourceContent;
 
 import org.sleuthkit.datamodel.AbstractFile;
+import uma.autopsy.DataSourceContent.Models.FileNode;
 
 public interface DSContentService {
     FileNode getDataSourceContentById(int dataSourceId, String deviceId);

@@ -10,10 +10,10 @@ import uma.autopsy.Cases.CaseRepository;
 import uma.autopsy.Exceptions.CaseDoesNotExistException;
 import uma.autopsy.Exceptions.ResourceNotFoundException;
 import uma.autopsy.GlobalProperties.GlobalProperties;
+import uma.autopsy.Utils.DiskImageValidator;
 
 import java.io.*;
 import java.io.File;
-import java.lang.module.ResolutionException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;

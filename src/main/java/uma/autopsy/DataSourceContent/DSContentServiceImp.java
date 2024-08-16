@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 import org.sleuthkit.autopsy.coreutils.StringExtract.*;
 import uma.autopsy.Cases.CaseRepository;
 import uma.autopsy.DataSource.DataSource;
+import uma.autopsy.DataSourceContent.Models.FileNode;
 import uma.autopsy.Exceptions.ResourceNotFoundException;
 import uma.autopsy.Exceptions.UnsupportedMimeTypeException;
+import uma.autopsy.Utils.DirectoryTreeBuilder;
 
 
 @Service
