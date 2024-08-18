@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.sleuthkit.autopsy.modules.filetypeid.FileTypeDetector;
 import org.sleuthkit.datamodel.AbstractFile;
+import org.sleuthkit.datamodel.Content;
 import org.sleuthkit.datamodel.FsContent;
 import org.sleuthkit.datamodel.TskCoreException;
 import uma.autopsy.Utils.SupportedMimeTypesUtil;
@@ -84,12 +85,12 @@ public class FileNode {
         this.children.add(child);
     }
 
-    public static FileNode getFileNode(AbstractFile content) throws TskCoreException {
+    public static FileNode getNode(AbstractFile content) throws TskCoreException {
+        if (content == null) { return new FileNode(); }
         List<String> metaDataText = new ArrayList<>();
-        MimeType mimeType = new MimeType(SupportedMimeTypesUtil.MimeTypeList.NONE.getValue(), content.getMIMEType(), false);
+        MimeType mimeType = new MimeType(SupportedMimeTypesUtil.MimeTypeList.NONE.getValue(), "", false);
 
-        if (content instanceof FsContent) {
-            FsContent fsContent = (FsContent) content;
+        if (content instanceof FsContent fsContent) {
             metaDataText = fsContent.getMetaDataText();
         }
 
@@ -106,6 +107,26 @@ public class FileNode {
                 mimeType, content.getNameExtension(), content.getType().getFileType(), content.getMtimeAsDate(), content.getCtimeAsDate(),
                 content.getAtimeAsDate(), content.getCrtimeAsDate(),
                 content.getFileSystem().getFsType().getDisplayName(), metaDataText);
+    }
+
+    public static FileNode getNode(Content content) throws TskCoreException {
+        if (content == null) { return new FileNode(); }
+        FileNode node = new FileNode();
+
+        List<String> metaDataText = new ArrayList<>();
+
+        if (content instanceof FsContent fsContent) {
+            metaDataText = fsContent.getMetaDataText();
+        }
+
+        node.setName(content.getName());
+        node.setPath(content.getUniquePath());
+        node.setId(content.getId());
+        node.setSize(content.getSize());
+        node.setMetaDataText(metaDataText);
+        node.setMimeType(new MimeType(SupportedMimeTypesUtil.MimeTypeList.NONE.getValue(), "", false));
+
+        return node;
     }
 
 }

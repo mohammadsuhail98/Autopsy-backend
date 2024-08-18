@@ -56,9 +56,17 @@ public class DSContentServiceImp implements DSContentService {
 
         try {
             skcase = SleuthkitCase.openCase(caseDir);
-            AbstractFile content = skcase.getAbstractFileById(fileId);
+            Content content = skcase.getContentById(fileId);
+            AbstractFile file = skcase.getAbstractFileById(fileId);
 
-            return FileNode.getFileNode(content);
+            if (file != null) {
+                return FileNode.getNode(file);
+            } else if (content != null) {
+                return FileNode.getNode(content);
+            } else {
+                return new FileNode();
+            }
+
         } catch (TskCoreException e) {
             throw new RuntimeException(e);
         }
@@ -79,7 +87,6 @@ public class DSContentServiceImp implements DSContentService {
             byte[] contentBytes = new byte[(int) file.getSize()];
             file.read(contentBytes, 0, contentBytes.length);
             return HexExtractor.toHexString(contentBytes).getBytes();
-
         } catch (TskCoreException e) {
             throw new RuntimeException(e);
         }
@@ -125,7 +132,7 @@ public class DSContentServiceImp implements DSContentService {
         try {
             skcase = SleuthkitCase.openCase(caseDir);
             AbstractFile file = skcase.getAbstractFileById(fileId);
-            FileNode fileNode = FileNode.getFileNode(file);
+            FileNode fileNode = FileNode.getNode(file);
 
             if (fileNode.getMimeType().isSupported()) {
                 return file;

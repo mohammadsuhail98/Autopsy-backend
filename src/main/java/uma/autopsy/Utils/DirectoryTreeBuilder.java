@@ -31,8 +31,12 @@ public class DirectoryTreeBuilder {
          * each type of file system.
          */
         if (content instanceof FsContent) {
-            FsContent fsContent = (FsContent) content;
-            metaDataText = fsContent.getMetaDataText();
+            try {
+                FsContent fsContent = (FsContent) content;
+                metaDataText = fsContent.getMetaDataText();
+            } catch (TskCoreException e) {
+
+            }
         }
 
         if (content instanceof AbstractFile) {
