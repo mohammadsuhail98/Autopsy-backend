@@ -26,6 +26,7 @@ public class DataSourceController {
                                                     @RequestParam("sectorSize") int sectorSize,
                                                     @RequestParam("ignoreOrphanFiles") boolean ignoreOrphanFiles,
                                                     @RequestParam("addUnAllocSpace") boolean addUnAllocSpace,
+                                                    @RequestParam("exifParser") boolean exifParser,
                                                     @RequestParam(value = "md5", required = false) String md5,
                                                     @RequestParam(value = "sha1", required = false) String sha1,
                                                     @RequestParam(value = "sha256", required = false) String sha256) {
@@ -37,6 +38,7 @@ public class DataSourceController {
         dataSource.setMd5Hash(md5);
         dataSource.setSha1Hash(sha1);
         dataSource.setSha256Hash(sha256);
+        dataSource.setExifParser(exifParser);
 
         DataSource createdDataSource = dataSourceService.addDataSource(caseId, file, dataSource, deviceId);
         return new ResponseEntity<>(createdDataSource, HttpStatus.OK);

@@ -11,6 +11,7 @@ import uma.autopsy.Exceptions.CaseDoesNotExistException;
 import uma.autopsy.Exceptions.ResourceNotFoundException;
 import uma.autopsy.GlobalProperties.GlobalProperties;
 import uma.autopsy.Utils.DiskImageValidator;
+import uma.autopsy.Utils.ExifProcessor;
 
 import java.io.*;
 import java.io.File;
@@ -95,6 +96,11 @@ public class DataSourceServiceImp implements DataSourceService {
             dataSource.setSha1Hash(image.getSha1());
             dataSource.setSha256Hash(image.getSha256());
             dataSource.setTimeZone(image.getTimeZone());
+
+            if (dataSource.isExifParser()) {
+                var processor = new ExifProcessor(skcase);
+                processor.processAllDirectories(skcase.getContentById(image.getId()));
+            }
 
         } catch (TskCoreException e) {
             System.out.println(STR."Exception caught: \{e.getMessage()}");

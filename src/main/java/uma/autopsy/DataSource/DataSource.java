@@ -73,4 +73,7 @@ public class DataSource {
 
     @Column(name="non_severe_errors")
     private String errors;
+
+    @Column(name = "exif_parser")
+    private boolean exifParser = false;
 }
