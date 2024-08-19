@@ -1,5 +1,6 @@
 package uma.autopsy.Utils;
 import org.sleuthkit.autopsy.modules.filetypeid.FileTypeDetector;
+import org.sleuthkit.autopsy.modules.pictureanalyzer.PictureAnalyzerIngestModule;
 import org.sleuthkit.datamodel.*;
 import uma.autopsy.DataSourceContent.Models.FileNode;
 import uma.autopsy.DataSourceContent.Models.MimeType;
@@ -12,7 +13,7 @@ public class DirectoryTreeBuilder {
 
     public FileNode buildTree(Content content) throws TskCoreException {
 
-        boolean isDir = false, isFile = false, isRoot = false;
+        boolean isDir = false, isFile = false, isRoot = false, hasAnalysisResults = false;
         String name = "", path = "", type = "", flagsDir = "", flagsMeta = "", known = "";
         String md5Hash = "", sha1Hash = "", sha256Hash = "", extension = "";
         String mTime = "", cTime = "", aTime = "", crTime = "", fileSystemType = "";
@@ -69,12 +70,13 @@ public class DirectoryTreeBuilder {
             aTime = file.getAtimeAsDate();
             crTime = file.getCrtimeAsDate();
             fileSystemType = file.getFileSystem().getFsType().getDisplayName();
+            hasAnalysisResults = !content.getAllAnalysisResults().isEmpty();
         }
 
         FileNode node = new FileNode(name, path, type, id, uid, gid, isDir, isFile,
                 isRoot, size, flagsDir, flagsMeta, known, md5Hash, sha1Hash,
                 sha256Hash, mimeType, extension, fileType, mTime, cTime, aTime,
-                crTime, fileSystemType, metaDataText);
+                crTime, fileSystemType, metaDataText, hasAnalysisResults);
 
         for (Content child : content.getChildren()) {
             node.addChild(buildTree(child));

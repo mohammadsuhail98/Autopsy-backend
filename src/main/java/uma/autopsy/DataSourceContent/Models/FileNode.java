@@ -45,6 +45,7 @@ public class FileNode {
     private String fileSystemType = "";
     private List<String> metaDataText;
     private MimeType mimeType;
+    private boolean hasAnalysisResults;
 
     public FileNode(String name, String path, String type, long id,
                     int uid, int gid, boolean isDir, boolean isFile, boolean isRoot,
@@ -52,7 +53,7 @@ public class FileNode {
                     String known, String md5Hash, String sha1Hash,
                     String sha256Hash, MimeType mimeType, String extension,
                     short fileType, String mTime, String cTime, String aTime,
-                    String crTime, String fileSystemType, List<String> metaDataText) {
+                    String crTime, String fileSystemType, List<String> metaDataText, boolean hasAnalysisResults) {
         this.name = name;
         this.path = path;
         this.type = type;
@@ -78,6 +79,7 @@ public class FileNode {
         this.crTime = crTime;
         this.fileSystemType = fileSystemType;
         this.metaDataText = metaDataText;
+        this.hasAnalysisResults = hasAnalysisResults;
         this.children = new ArrayList<>();
     }
 
@@ -89,6 +91,7 @@ public class FileNode {
         if (content == null) { return new FileNode(); }
         List<String> metaDataText = new ArrayList<>();
         MimeType mimeType = new MimeType(SupportedMimeTypesUtil.MimeTypeList.NONE.getValue(), "", false);
+        boolean hasAnalysisResults = !content.getAllAnalysisResults().isEmpty();
 
         if (content instanceof FsContent fsContent) {
             metaDataText = fsContent.getMetaDataText();
@@ -106,7 +109,7 @@ public class FileNode {
                 content.getMetaFlagsAsString(), content.getKnown().getName(), content.getMd5Hash(), content.getSha1Hash(), content.getSha256Hash(),
                 mimeType, content.getNameExtension(), content.getType().getFileType(), content.getMtimeAsDate(), content.getCtimeAsDate(),
                 content.getAtimeAsDate(), content.getCrtimeAsDate(),
-                content.getFileSystem().getFsType().getDisplayName(), metaDataText);
+                content.getFileSystem().getFsType().getDisplayName(), metaDataText, hasAnalysisResults);
     }
 
     public static FileNode getNode(Content content) throws TskCoreException {
@@ -114,6 +117,7 @@ public class FileNode {
         FileNode node = new FileNode();
 
         List<String> metaDataText = new ArrayList<>();
+        boolean hasAnalysisResults = !content.getAllAnalysisResults().isEmpty();
 
         if (content instanceof FsContent fsContent) {
             metaDataText = fsContent.getMetaDataText();
@@ -124,6 +128,7 @@ public class FileNode {
         node.setId(content.getId());
         node.setSize(content.getSize());
         node.setMetaDataText(metaDataText);
+        node.setHasAnalysisResults(hasAnalysisResults);
         node.setMimeType(new MimeType(SupportedMimeTypesUtil.MimeTypeList.NONE.getValue(), "", false));
 
         return node;
