@@ -15,11 +15,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 import org.apache.commons.lang3.StringUtils;
-import org.sleuthkit.autopsy.casemodule.NoCurrentCaseException;
 import org.sleuthkit.autopsy.coreutils.Logger;
-import org.sleuthkit.autopsy.coreutils.TimeZoneUtils;
+import org.sleuthkit.autopsy.modules.filetypeid.FileTypeDetector;
 import org.sleuthkit.autopsy.modules.pictureanalyzer.PictureAnalyzerIngestModuleFactory;
-import org.sleuthkit.autopsy.modules.pictureanalyzer.impls.EXIFProcessor;
 import org.sleuthkit.datamodel.*;
 import org.sleuthkit.datamodel.BlackboardArtifact.Type;
 import org.sleuthkit.datamodel.BlackboardAttribute.ATTRIBUTE_TYPE;
@@ -29,10 +27,17 @@ public class ExifProcessor {
     private static final Logger logger = Logger.getLogger(ExifProcessor.class.getName());
     private static final String MODULE_NAME = PictureAnalyzerIngestModuleFactory.getModuleName();
 
+    private FileTypeDetector fileTypeDetector;
     private SleuthkitCase skcase;
 
     public ExifProcessor(SleuthkitCase skcase){
         this.skcase = skcase;
+
+        try {
+            this.fileTypeDetector = new FileTypeDetector();
+        } catch (FileTypeDetector.FileTypeDetectorInitException var3) {
+            throw new RuntimeException("Couldnt instantiate File Type Detecter");
+        }
     }
 
     public void processAllDirectories(Content content) throws TskCoreException {
@@ -52,20 +57,23 @@ public class ExifProcessor {
     public void process(AbstractFile file) {
         try (BufferedInputStream bin = new BufferedInputStream(new ReadContentInputStream(file))) {
 
-            List<BlackboardAttribute> attributes = new ArrayList<>();
-            Metadata metadata = ImageMetadataReader.readMetadata(bin);
+            String fileMimeType = this.fileTypeDetector.getMIMEType(file);
 
-            processExifData(file, metadata, attributes);
-            processGpsData(file, metadata, attributes);
-            processDeviceData(file, metadata, attributes);
+            if (mimeTypes().contains(fileMimeType.toLowerCase())) {
+                List<BlackboardAttribute> attributes = new ArrayList<>();
+                Metadata metadata = ImageMetadataReader.readMetadata(bin);
 
-            if (!attributes.isEmpty()) {
-                Blackboard blackboard = skcase.getBlackboard();
-                if (!blackboard.artifactExists(file, Type.TSK_METADATA_EXIF, attributes)) {
-                    createArtifacts(file, attributes, blackboard);
+                processExifData(file, metadata, attributes);
+                processGpsData(file, metadata, attributes);
+                processDeviceData(file, metadata, attributes);
+
+                if (!attributes.isEmpty()) {
+                    Blackboard blackboard = skcase.getBlackboard();
+                    if (!blackboard.artifactExists(file, Type.TSK_METADATA_EXIF, attributes)) {
+                        createArtifacts(file, attributes, blackboard);
+                    }
                 }
             }
-
         } catch (TskCoreException e) {
             logger.log(Level.SEVERE, String.format("Error creating TSK_METADATA_EXIF and TSK_USER_CONTENT_SUSPECTED artifacts for %s (object ID = %d)", file.getName(), file.getId()), e);
         } catch (ImageProcessingException | IOException e) {
