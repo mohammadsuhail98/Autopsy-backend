@@ -9,6 +9,8 @@ import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.drew.metadata.exif.GpsDirectory;
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -84,7 +86,7 @@ public class ExifProcessor {
         }
     }
 
-    private void processGpsData(AbstractFile file, Metadata metadata, List<BlackboardAttribute> attributes) {
+    private void processGpsData(AbstractFile file, Metadata metadata, List<BlackboardAttribute> attributes) throws TskCoreException {
         GpsDirectory gpsDir = metadata.getFirstDirectoryOfType(GpsDirectory.class);
         if (gpsDir != null) {
             GeoLocation loc = gpsDir.getGeoLocation();
@@ -92,6 +94,7 @@ public class ExifProcessor {
             if (loc != null) {
                 attributes.add(new BlackboardAttribute(ATTRIBUTE_TYPE.TSK_GEO_LATITUDE, MODULE_NAME, loc.getLatitude()));
                 attributes.add(new BlackboardAttribute(ATTRIBUTE_TYPE.TSK_GEO_LONGITUDE, MODULE_NAME, loc.getLongitude()));
+                storeFile(file);
             }
 
             Rational altitude = gpsDir.getRational(6);
@@ -147,6 +150,39 @@ public class ExifProcessor {
             logger.log(Level.INFO, "Error getting time zone", e);
         }
         return null;
+    }
+
+    private void storeFile(AbstractFile file) throws TskCoreException {
+        String baseDir = skcase.getDbDirPath();
+
+        if (baseDir == null) {
+            throw new IllegalArgumentException("Base directory path is null");
+        }
+
+        File directory = new File(baseDir);
+        File exifDirectory = new File(directory, String.format("exif_files/%d-%s", file.getDataSource().getId(), file.getDataSource().getName()));
+
+        if (!exifDirectory.exists()) {
+            if (!exifDirectory.mkdirs()) {
+                System.out.println(STR."Failed to create directory: \{baseDir}");
+            }
+        }
+
+        File localFile = new File(exifDirectory, file.getName());
+
+        if (localFile.exists()) {
+            System.out.println(STR."File already exists: \{localFile.getAbsolutePath()}");
+            return;
+        }
+
+        try (FileOutputStream fos = new FileOutputStream(localFile)) {
+            byte[] imageBytes = new byte[(int) file.getSize()];
+            file.read(imageBytes, 0, imageBytes.length);
+            fos.write(imageBytes);
+        } catch (IOException e) {
+            System.out.println(e.getLocalizedMessage());
+        }
+
     }
 
     public Set<String> mimeTypes() {
