@@ -1,5 +1,7 @@
 package uma.autopsy.DataSource;
 
+import org.sleuthkit.autopsy.core.RuntimeProperties;
+import org.sleuthkit.autopsy.coreutils.Logger;
 import org.sleuthkit.datamodel.*;
 import org.sleuthkit.datamodel.SleuthkitCase.CaseDbTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +21,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 
 @Service
 public class DataSourceServiceImp implements DataSourceService {
+
+    private static final Logger logger = Logger.getLogger(ExifProcessor.class.getName());
 
     @Autowired
     private DataSourceRepository dataSourceRepository;
@@ -31,10 +37,7 @@ public class DataSourceServiceImp implements DataSourceService {
     private GlobalProperties globalProperties;
 
     public DataSource addDataSource(int caseId, MultipartFile file, DataSource dataSource, String deviceId) {
-        // TODO: Add ingest module ###UNDER-DEVELOPMENT###
-
-        Case caseEntity = caseRepository.findById(caseId)
-                .orElseThrow(() -> new CaseDoesNotExistException(STR."Case not found for this id : \{caseId}"));
+        Case caseEntity = getCase(caseId);
         if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
         dataSource.setCaseEntity(caseEntity);
@@ -42,12 +45,14 @@ public class DataSourceServiceImp implements DataSourceService {
         String tempFileDir = getTempFileDir(file, caseEntity);
         SleuthkitCase skcase = null;
         CaseDbTransaction transaction = null;
+        Image image = null;
+
         var imageType = TskData.TSK_IMG_TYPE_ENUM.TSK_IMG_TYPE_DETECT;
         try {
             imageType = DiskImageValidator.validateDiskImage(file);
             file.transferTo(new File(tempFileDir));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
         }
 
         try {
@@ -65,17 +70,12 @@ public class DataSourceServiceImp implements DataSourceService {
             var processUUID = UUID.randomUUID().toString();
             transaction = skcase.beginTransaction();
 
-            Image image = skcase.addImage(imageType, sectorSize, size, displayName, pathList, timeZone, md5Hash, sha1Hash, sha256Hash, UUID.randomUUID().toString(), transaction);
+            image = skcase.addImage(imageType, sectorSize, size, displayName, pathList, timeZone, md5Hash, sha1Hash, sha256Hash, UUID.randomUUID().toString(), transaction);
 
             transaction.commit();
 
             try {
-                var addDataSourceCallbacks = new AddDataSourceCallbacks() {
-                    @Override
-                    public void onFilesAdded(List<Long> list) {
-
-                    }
-                };
+                var addDataSourceCallbacks = getAddDataSourceCallbacks(dataSource, skcase);
                 SleuthkitJNI.CaseDbHandle.AddImageProcess process = skcase.makeAddImageProcess(dataSource.getTimeZone(), dataSource.isAddUnAllocSpace(), dataSource.isIgnoreOrphanFiles(), "");
                 process.run(processUUID,image, (int) image.getSsize(), addDataSourceCallbacks);
             } catch (TskDataException ex) {
@@ -97,13 +97,10 @@ public class DataSourceServiceImp implements DataSourceService {
             dataSource.setSha256Hash(image.getSha256());
             dataSource.setTimeZone(image.getTimeZone());
 
-            if (dataSource.isExifParser()) {
-                var processor = new ExifProcessor(skcase);
-                processor.processAllDirectories(skcase.getContentById(image.getId()));
-            }
+            return dataSourceRepository.save(dataSource);
 
         } catch (TskCoreException e) {
-            System.out.println(STR."Exception caught: \{e.getMessage()}");
+            logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
             if (transaction != null) {
                 try {
                     transaction.rollback();
@@ -111,12 +108,27 @@ public class DataSourceServiceImp implements DataSourceService {
                     throw new RuntimeException(ex);
                 }
             }
-            if (skcase != null) {
-                skcase.close();
-            }
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getLocalizedMessage());
         }
-        return dataSourceRepository.save(dataSource);
+    }
+
+    private static AddDataSourceCallbacks getAddDataSourceCallbacks(DataSource dataSource, SleuthkitCase skcase) {
+        return list -> {
+            if (dataSource.isExifParser()) {
+                var processor = new ExifProcessor(skcase);
+                Content content = null;
+                try {
+                    for (var id: list) {
+                        content = skcase.getContentById(id);
+                        if (content != null) {
+                            processor.processAllDirectories(content);
+                        }
+                    }
+                } catch (TskCoreException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
     }
 
     String validHash(String hash){
@@ -150,8 +162,7 @@ public class DataSourceServiceImp implements DataSourceService {
     }
 
     public DataSource getDataSourceById(int caseId, int dataSourceId,  String deviceId) {
-        Case caseEntity = caseRepository.findById(caseId)
-                .orElseThrow(() -> new CaseDoesNotExistException(STR."Case not found for this id : \{caseId}"));
+        Case caseEntity = getCase(caseId);
         if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
         return dataSourceRepository.findByIdAndCaseEntity_Id(dataSourceId, caseId)
                 .orElseThrow(() -> new ResourceNotFoundException("DataSource not found for this id: " + dataSourceId));
@@ -160,6 +171,11 @@ public class DataSourceServiceImp implements DataSourceService {
     public void deleteDataSource(int caseId, int dataSourceId,  String deviceId) {
         DataSource dataSource = getDataSourceById(caseId, dataSourceId, deviceId);
         dataSourceRepository.delete(dataSource);
+    }
+
+    private Case getCase(int caseId){
+        return caseRepository.findById(caseId)
+                .orElseThrow(() -> new CaseDoesNotExistException(STR."Case not found for this id : \{caseId}"));
     }
 
 }
