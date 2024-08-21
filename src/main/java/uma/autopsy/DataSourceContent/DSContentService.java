@@ -1,6 +1,7 @@
 package uma.autopsy.DataSourceContent;
 
 import org.sleuthkit.datamodel.AbstractFile;
+import uma.autopsy.DataSourceContent.Models.AnalysisResult;
 import uma.autopsy.DataSourceContent.Models.FileNode;
 
 public interface DSContentService {
@@ -9,5 +10,6 @@ public interface DSContentService {
     byte[] getHexFile(int dataSourceId, String deviceId, int fileId);
     byte[] getTextFile(int dataSourceId, String deviceId, int fileId);
     AbstractFile getApplicationFile(int dataSourceId, String deviceId, int fileId);
+    AnalysisResult getAnalysisResult(int dataSourceId, String deviceId, int fileId);
 
 }

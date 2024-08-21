@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import uma.autopsy.DataSourceContent.Models.AnalysisResult;
 import uma.autopsy.DataSourceContent.Models.FileNode;
 
 import java.io.ByteArrayInputStream;
@@ -93,6 +94,14 @@ public class DSContentController {
                 .headers(headers)
                 .contentLength(contentBytes.length)
                 .body(resource);
+    }
+
+    @GetMapping("/analysis_results")
+    public ResponseEntity<AnalysisResult> getAnalysisResults(@PathVariable("dataSourceId") int dataSourceId,
+                                                                  @RequestParam("fileId") int fileId,
+                                                                  @RequestHeader("deviceId") String deviceId) throws IOException, TskCoreException {
+        AnalysisResult analysisResult = dsContentService.getAnalysisResult(dataSourceId, deviceId, fileId);
+        return new ResponseEntity<>(analysisResult, HttpStatus.OK);
     }
 
 }
