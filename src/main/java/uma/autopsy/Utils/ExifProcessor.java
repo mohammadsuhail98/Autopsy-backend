@@ -35,8 +35,8 @@ public class ExifProcessor {
 
         try {
             this.fileTypeDetector = new FileTypeDetector();
-        } catch (FileTypeDetector.FileTypeDetectorInitException var3) {
-            throw new RuntimeException("Couldnt instantiate File Type Detecter");
+        } catch (FileTypeDetector.FileTypeDetectorInitException e) {
+            logger.log(Level.SEVERE, "Failed to instantiate FileTypeDetector", e);
         }
     }
 
@@ -45,7 +45,10 @@ public class ExifProcessor {
         if (content instanceof AbstractFile) {
             AbstractFile file = (AbstractFile) content;
             if (file != null) {
-                process(file);
+                String fileMimeType = fileTypeDetector.getMIMEType(file);
+                if (mimeTypes().contains(fileMimeType.toLowerCase())) {
+                    process(file);
+                }
             }
         }
 
@@ -56,22 +59,17 @@ public class ExifProcessor {
 
     public void process(AbstractFile file) {
         try (BufferedInputStream bin = new BufferedInputStream(new ReadContentInputStream(file))) {
+            List<BlackboardAttribute> attributes = new ArrayList<>();
+            Metadata metadata = ImageMetadataReader.readMetadata(bin);
 
-            String fileMimeType = this.fileTypeDetector.getMIMEType(file);
+            processExifData(file, metadata, attributes);
+            processGpsData(file, metadata, attributes);
+            processDeviceData(file, metadata, attributes);
 
-            if (mimeTypes().contains(fileMimeType.toLowerCase())) {
-                List<BlackboardAttribute> attributes = new ArrayList<>();
-                Metadata metadata = ImageMetadataReader.readMetadata(bin);
-
-                processExifData(file, metadata, attributes);
-                processGpsData(file, metadata, attributes);
-                processDeviceData(file, metadata, attributes);
-
-                if (!attributes.isEmpty()) {
-                    Blackboard blackboard = skcase.getBlackboard();
-                    if (!blackboard.artifactExists(file, Type.TSK_METADATA_EXIF, attributes)) {
-                        createArtifacts(file, attributes, blackboard);
-                    }
+            if (!attributes.isEmpty()) {
+                Blackboard blackboard = skcase.getBlackboard();
+                if (!blackboard.artifactExists(file, Type.TSK_METADATA_EXIF, attributes)) {
+                    createArtifacts(file, attributes, blackboard);
                 }
             }
         } catch (TskCoreException e) {
@@ -82,12 +80,10 @@ public class ExifProcessor {
     }
 
     private void processExifData(AbstractFile file, Metadata metadata, List<BlackboardAttribute> attributes) {
-        System.out.println(metadata.toString());
         ExifSubIFDDirectory exifDir = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
         if (exifDir != null) {
             TimeZone timeZone = getTimeZone(file);
             Date date = exifDir.getDate(36867, timeZone);
-            System.out.println(date);
             if (date != null) {
                 attributes.add(new BlackboardAttribute(ATTRIBUTE_TYPE.TSK_DATETIME_CREATED, MODULE_NAME, date.getTime() / 1000L));
             }
@@ -149,7 +145,6 @@ public class ExifProcessor {
     private TimeZone getTimeZone(AbstractFile file) {
         try {
             Content dataSource = file.getDataSource();
-            System.out.println(file.getNameExtension());
             if (dataSource != null && dataSource instanceof Image) {
                 Image image = (Image) dataSource;
                 return TimeZone.getTimeZone(image.getTimeZone());
@@ -179,7 +174,6 @@ public class ExifProcessor {
         File localFile = new File(exifDirectory, file.getName());
 
         if (localFile.exists()) {
-            System.out.println(STR."File already exists: \{localFile.getAbsolutePath()}");
             return;
         }
 
@@ -194,7 +188,7 @@ public class ExifProcessor {
     }
 
     public Set<String> mimeTypes() {
-        return new HashSet<>(Set.of("audio/x-wav", "image/jpeg", "image/tiff"));
+        return new HashSet<>(Set.of("audio/x-wav", "image/jpeg", "image/tiff", "image/heic"));
     }
 }
 
