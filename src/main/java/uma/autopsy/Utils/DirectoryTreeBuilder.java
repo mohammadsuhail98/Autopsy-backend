@@ -69,7 +69,9 @@ public class DirectoryTreeBuilder {
             cTime = file.getCtimeAsDate();
             aTime = file.getAtimeAsDate();
             crTime = file.getCrtimeAsDate();
-            fileSystemType = file.getFileSystem().getFsType().getDisplayName();
+            if (file.hasFileSystem()) {
+                fileSystemType = file.getFileSystem().getFsType().getDisplayName();
+            }
             hasAnalysisResults = !content.getAllAnalysisResults().isEmpty();
         }
 

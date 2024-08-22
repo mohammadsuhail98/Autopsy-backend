@@ -109,7 +109,7 @@ public class FileNode {
                 content.getMetaFlagsAsString(), content.getKnown().getName(), content.getMd5Hash(), content.getSha1Hash(), content.getSha256Hash(),
                 mimeType, content.getNameExtension(), content.getType().getFileType(), content.getMtimeAsDate(), content.getCtimeAsDate(),
                 content.getAtimeAsDate(), content.getCrtimeAsDate(),
-                content.getFileSystem().getFsType().getDisplayName(), metaDataText, hasAnalysisResults);
+                content.hasFileSystem() ? content.getFileSystem().getFsType().getDisplayName() : "", metaDataText, hasAnalysisResults);
     }
 
     public static FileNode getNode(Content content) throws TskCoreException {
