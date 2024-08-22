@@ -8,6 +8,7 @@ import uma.autopsy.Utils.SupportedMimeTypesUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DirectoryTreeBuilder {
 
@@ -25,20 +26,6 @@ public class DirectoryTreeBuilder {
         id = content.getId();
         name = content.getName();
         path = content.getUniquePath();
-
-        /**
-         * Gets a text-based description of the file's metadata. This is the same
-         * content as the TSK istat tool produces and is different information for
-         * each type of file system.
-         */
-        if (content instanceof FsContent) {
-            try {
-                FsContent fsContent = (FsContent) content;
-                metaDataText = fsContent.getMetaDataText();
-            } catch (TskCoreException e) {
-
-            }
-        }
 
         if (content instanceof AbstractFile) {
             AbstractFile file = (AbstractFile) content;
@@ -78,7 +65,7 @@ public class DirectoryTreeBuilder {
         FileNode node = new FileNode(name, path, type, id, uid, gid, isDir, isFile,
                 isRoot, size, flagsDir, flagsMeta, known, md5Hash, sha1Hash,
                 sha256Hash, mimeType, extension, fileType, mTime, cTime, aTime,
-                crTime, fileSystemType, metaDataText, hasAnalysisResults);
+                crTime, fileSystemType, hasAnalysisResults);
 
         for (Content child : content.getChildren()) {
             node.addChild(buildTree(child));
