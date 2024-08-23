@@ -37,11 +37,16 @@ public class DSContentServiceImp implements DSContentService {
 
         try {
             skcase = SleuthkitCase.openCase(caseDir);
-            var content = skcase.getImageById(dataSource.getDataSourceId());
+            var skcaseDataSource = skcase.getDataSource(dataSource.getDataSourceId());
+
             DirectoryTreeBuilder treeBuilder = new DirectoryTreeBuilder();
-            tree = treeBuilder.buildTree(content);
+            for (var content: skcaseDataSource.getChildren()) {
+                tree = treeBuilder.buildTree(content);
+            }
 
         } catch (TskCoreException e) {
+            throw new RuntimeException(e);
+        } catch (TskDataException e) {
             throw new RuntimeException(e);
         }
 

@@ -1,7 +1,6 @@
 package uma.autopsy.AnalysisResults;
 
 import org.sleuthkit.autopsy.coreutils.Logger;
-import org.sleuthkit.autopsy.datamodel.AnalysisResults;
 import org.sleuthkit.datamodel.AbstractFile;
 import org.sleuthkit.datamodel.BlackboardArtifact;
 import org.sleuthkit.datamodel.SleuthkitCase;
@@ -29,6 +28,7 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
     @Override
     public List<AnalysisResultType> getAnalysisResultsTypes(int caseId, String deviceId) {
         Case caseEntity = getCase(caseId);
+        if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
         SleuthkitCase skcase = null;
 
@@ -52,6 +52,7 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
     @Override
     public List<FileNode> getFilesByAnalysisResult(int caseId, String deviceId, int analysisType) {
         Case caseEntity = getCase(caseId);
+        if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
         SleuthkitCase skcase = null;
 
@@ -76,6 +77,10 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
         } catch (TskCoreException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    boolean validateDeviceId(String deviceId, Case caseEntity){
+        return deviceId.equalsIgnoreCase(caseEntity.getDeviceId());
     }
 
     private Case getCase(int caseId){
