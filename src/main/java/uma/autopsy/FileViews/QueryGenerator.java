@@ -91,13 +91,13 @@ public class QueryGenerator {
                 return getAllDeletedFilesQuery();
 
             case FILE_SIZE_MB_50_TO_200:
-                return ""; // Query for file size 50MB to 200MB
+                return "(size >= 50000000 AND size < 200000000)";
 
             case FILE_SIZE_MB_200_TO_1GB:
-                return ""; // Query for file size 200MB to 1GB
+                return "(size >= 200000000 AND size < 1000000000)";
 
             case FILE_SIZE_MB_1GB_PLUS:
-                return ""; // Query for file size 1GB and above
+                return "(size >= 1000000000)";
 
             default:
                 throw new IllegalArgumentException("Unknown FileViewType: " + fileViewType);

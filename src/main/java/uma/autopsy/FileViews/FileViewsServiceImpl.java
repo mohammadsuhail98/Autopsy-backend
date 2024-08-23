@@ -25,12 +25,7 @@ public class FileViewsServiceImpl implements FileViewsService {
     CaseRepository caseRepository;
 
     @Override
-    public List<FileNode> getFilesByQuery(int caseId, String deviceId, String query) {
-        return null;
-    }
-
-    @Override
-    public List<FileNode> getFilesByViewType(int caseId, String deviceId, int extensionId) {
+    public List<FileNode> getFilesByViewType(int caseId, String deviceId, int type) {
         Case caseEntity = getCase(caseId);
         if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
@@ -38,8 +33,8 @@ public class FileViewsServiceImpl implements FileViewsService {
 
         try {
             skcase = SleuthkitCase.openCase(caseEntity.getCasePath());
-            QueryGenerator.FileViewType type = QueryGenerator.FileViewType.fromID(extensionId);
-            var list = skcase.findAllFilesWhere(QueryGenerator.getQueryForFileViewType(type));
+            QueryGenerator.FileViewType fileViewType = QueryGenerator.FileViewType.fromID(type);
+            var list = skcase.findAllFilesWhere(QueryGenerator.getQueryForFileViewType(fileViewType));
 
             List<FileNode> files = new ArrayList<>();
             for (AbstractFile abstractFile : list) {
@@ -131,28 +126,6 @@ public class FileViewsServiceImpl implements FileViewsService {
                 files.add(FileNode.getNode(abstractFile));
             }
 
-            return files;
-        } catch (TskCoreException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public List<FileNode> getDeletedFiles(int caseId, String deviceId, int type) {
-        Case caseEntity = getCase(caseId);
-        if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
-
-        SleuthkitCase skcase = null;
-
-        try {
-            skcase = SleuthkitCase.openCase(caseEntity.getCasePath());
-            QueryGenerator.FileViewType fileViewType = QueryGenerator.FileViewType.fromID(type);
-            var list = skcase.findAllFilesWhere(QueryGenerator.getQueryForFileViewType(fileViewType));
-
-            List<FileNode> files = new ArrayList<>();
-            for (AbstractFile abstractFile : list) {
-                files.add(FileNode.getNode(abstractFile));
-            }
             return files;
         } catch (TskCoreException e) {
             throw new RuntimeException(e);

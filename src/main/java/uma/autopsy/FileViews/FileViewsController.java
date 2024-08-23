@@ -43,7 +43,15 @@ public class FileViewsController {
     public ResponseEntity<List<FileNode>> getDeletedFiles(@RequestParam("caseId") int caseId,
                                                           @RequestParam("type") int type,
                                                           @RequestHeader("deviceId") String deviceId){
-        List<FileNode> files = fileViewsService.getDeletedFiles(caseId, deviceId, type);
+        List<FileNode> files = fileViewsService.getFilesByViewType(caseId, deviceId, type);
+        return new ResponseEntity<>(files, HttpStatus.OK);
+    }
+
+    @GetMapping("files_by_size")
+    public ResponseEntity<List<FileNode>> getFilesBySize(@RequestParam("caseId") int caseId,
+                                                          @RequestParam("type") int type,
+                                                          @RequestHeader("deviceId") String deviceId){
+        List<FileNode> files = fileViewsService.getFilesByViewType(caseId, deviceId, type);
         return new ResponseEntity<>(files, HttpStatus.OK);
     }
 }
