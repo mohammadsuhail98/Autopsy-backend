@@ -38,4 +38,12 @@ public class FileViewsController {
         List<FileNode> files = fileViewsService.getFilesByMimeTypes(caseId, deviceId, mimeType);
         return new ResponseEntity<>(files, HttpStatus.OK);
     }
+
+    @GetMapping("deleted_files")
+    public ResponseEntity<List<FileNode>> getDeletedFiles(@RequestParam("caseId") int caseId,
+                                                          @RequestParam("type") int type,
+                                                          @RequestHeader("deviceId") String deviceId){
+        List<FileNode> files = fileViewsService.getDeletedFiles(caseId, deviceId, type);
+        return new ResponseEntity<>(files, HttpStatus.OK);
+    }
 }

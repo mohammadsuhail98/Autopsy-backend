@@ -83,13 +83,12 @@ public class QueryGenerator {
 
             case EXECUTABLE_EXE, EXECUTABLE_DLL, EXECUTABLE_BAT, EXECUTABLE_CMD, EXECUTABLE_COM:
                 return getFilesByExtensionQuery(FileTypeExtensions.getExecutableExtensions());
-            //                return STR."\{createBaseWhereExpr()} AND mime_type = '\{FileTypeExtensions.getImageExtensions()}'";
 
             case DELETED_FILES_FILE_SYSTEM:
-                return ""; // Query for deleted files in file system
+                return getFSDeletedFilesQuery();
 
             case DELETED_FILES_ALL:
-                return ""; // Query for all deleted files
+                return getAllDeletedFilesQuery();
 
             case FILE_SIZE_MB_50_TO_200:
                 return ""; // Query for file size 50MB to 200MB
@@ -106,9 +105,15 @@ public class QueryGenerator {
 
     }
 
+    public static String getAllDeletedFilesQuery(){
+        return STR."( (dir_flags = \{TskData.TSK_FS_NAME_FLAG_ENUM.UNALLOC.getValue()} OR meta_flags = \{TskData.TSK_FS_META_FLAG_ENUM.ORPHAN.getValue()}) AND type = \{TskData.TSK_DB_FILES_TYPE_ENUM.FS.getFileType()} ) OR type = \{TskData.TSK_DB_FILES_TYPE_ENUM.CARVED.getFileType()} OR (dir_flags = \{TskData.TSK_FS_NAME_FLAG_ENUM.UNALLOC.getValue()} AND type = \{TskData.TSK_DB_FILES_TYPE_ENUM.LAYOUT_FILE.getFileType()} )";
+    }
+
+    public static String getFSDeletedFilesQuery(){
+        return STR."dir_flags = \{TskData.TSK_FS_NAME_FLAG_ENUM.UNALLOC.getValue()} AND meta_flags != \{TskData.TSK_FS_META_FLAG_ENUM.ORPHAN.getValue()} AND type = \{TskData.TSK_DB_FILES_TYPE_ENUM.FS.getFileType()}";
+    }
+
     public static String getFilesByMimeTypeQuery(String mimeType){
-        System.out.println(mimeType);
-        System.out.println(STR."\{getBaseWhereExprQuery()} AND mime_type = '\{mimeType}'");
         return STR."\{getBaseWhereExprQuery()} AND mime_type = '\{mimeType}'";
     }
 

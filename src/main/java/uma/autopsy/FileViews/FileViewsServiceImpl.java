@@ -137,6 +137,28 @@ public class FileViewsServiceImpl implements FileViewsService {
         }
     }
 
+    @Override
+    public List<FileNode> getDeletedFiles(int caseId, String deviceId, int type) {
+        Case caseEntity = getCase(caseId);
+        if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
+
+        SleuthkitCase skcase = null;
+
+        try {
+            skcase = SleuthkitCase.openCase(caseEntity.getCasePath());
+            QueryGenerator.FileViewType fileViewType = QueryGenerator.FileViewType.fromID(type);
+            var list = skcase.findAllFilesWhere(QueryGenerator.getQueryForFileViewType(fileViewType));
+
+            List<FileNode> files = new ArrayList<>();
+            for (AbstractFile abstractFile : list) {
+                files.add(FileNode.getNode(abstractFile));
+            }
+            return files;
+        } catch (TskCoreException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     boolean validateDeviceId(String deviceId, Case caseEntity){
         return deviceId.equalsIgnoreCase(caseEntity.getDeviceId());
     }
