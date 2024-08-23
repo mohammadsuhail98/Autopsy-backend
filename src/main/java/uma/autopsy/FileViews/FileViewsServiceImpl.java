@@ -10,6 +10,7 @@ import uma.autopsy.Cases.Case;
 import uma.autopsy.Cases.CaseRepository;
 import uma.autopsy.DataSourceContent.Models.FileNode;
 import uma.autopsy.Exceptions.CaseDoesNotExistException;
+import uma.autopsy.Utils.QueryGenerator;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

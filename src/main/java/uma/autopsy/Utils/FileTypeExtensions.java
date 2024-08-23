@@ -1,4 +1,4 @@
-package uma.autopsy.FileViews;
+package uma.autopsy.Utils;
 
 import java.util.Arrays;
 import java.util.List;
