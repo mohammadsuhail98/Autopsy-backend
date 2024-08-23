@@ -1,7 +1,7 @@
 package uma.autopsy.DataSource;
 
-import org.sleuthkit.autopsy.core.RuntimeProperties;
 import org.sleuthkit.autopsy.coreutils.Logger;
+import org.sleuthkit.autopsy.modules.filetypeid.FileTypeDetector;
 import org.sleuthkit.datamodel.*;
 import org.sleuthkit.datamodel.SleuthkitCase.CaseDbTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 @Service
@@ -112,23 +111,46 @@ public class DataSourceServiceImp implements DataSourceService {
         }
     }
 
-    private static AddDataSourceCallbacks getAddDataSourceCallbacks(DataSource dataSource, SleuthkitCase skcase) {
+    private AddDataSourceCallbacks getAddDataSourceCallbacks(DataSource dataSource, SleuthkitCase skcase) {
         return list -> {
+            this.updateMimeTypes(skcase, list);
             if (dataSource.isExifParser()) {
-                var processor = new ExifProcessor(skcase);
-                Content content = null;
-                try {
-                    for (var id: list) {
-                        content = skcase.getContentById(id);
-                        if (content != null) {
-                            processor.processAllDirectories(content);
-                        }
-                    }
-                } catch (TskCoreException e) {
-                    throw new RuntimeException(e);
-                }
+                this.processExifData(skcase, list);
             }
         };
+    }
+
+    private void updateMimeTypes(SleuthkitCase skcase, List<Long> dataSourceIds){
+        try {
+            for (var id: dataSourceIds) {
+                var content = skcase.getContentById(id);
+                if (content != null && content instanceof AbstractFile abstractFile) {
+                    var detector = new FileTypeDetector();
+                    var mimeType = detector.getMIMEType(abstractFile);
+                    abstractFile.setMIMEType(mimeType);
+                    abstractFile.save();
+                }
+            }
+        } catch (TskCoreException e) {
+            throw new RuntimeException(e);
+        } catch (FileTypeDetector.FileTypeDetectorInitException e) {
+            logger.log(Level.WARNING, e.getLocalizedMessage(), e);
+        }
+    }
+
+    private void processExifData(SleuthkitCase skcase, List<Long> dataSourceIds){
+        var processor = new ExifProcessor(skcase);
+        Content content = null;
+        try {
+            for (var id: dataSourceIds) {
+                content = skcase.getContentById(id);
+                if (content != null) {
+                    processor.processAllDirectories(content);
+                }
+            }
+        } catch (TskCoreException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     String validHash(String hash){
