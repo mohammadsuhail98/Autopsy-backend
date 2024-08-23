@@ -92,18 +92,22 @@ public class QueryGenerator {
                 return getAllDeletedFilesQuery();
 
             case FILE_SIZE_MB_50_TO_200:
-                return "(size >= 50000000 AND size < 200000000)";
+                return STR."(size >= 50000000 AND size < 200000000)\{getFilesBySizeQuery()}";
 
             case FILE_SIZE_MB_200_TO_1GB:
-                return "(size >= 200000000 AND size < 1000000000)";
+                return STR."(size >= 200000000 AND size < 1000000000)\{getFilesBySizeQuery()}";
 
             case FILE_SIZE_MB_1GB_PLUS:
-                return "(size >= 1000000000)";
+                return STR."(size >= 1000000000)\{getFilesBySizeQuery()}";
 
             default:
                 throw new IllegalArgumentException("Unknown FileViewType: " + fileViewType);
         }
 
+    }
+
+    public static String getFilesBySizeQuery(){
+        return STR." AND (type != \{TskData.TSK_DB_FILES_TYPE_ENUM.UNALLOC_BLOCKS.getFileType()})";
     }
 
     public static String getAllDeletedFilesQuery(){
