@@ -43,6 +43,10 @@ public class FileNode {
     private List<String> metaDataText;
     private MimeType mimeType;
     private boolean hasAnalysisResults;
+    private boolean isVirtual;
+    private boolean isDeleted;
+    private boolean isVolume;
+    private VolumeInfo volumeInfo;
 
     public FileNode(String name, String path, String type, long id,
                     int uid, int gid, boolean isDir, boolean isFile, boolean isRoot,
@@ -50,7 +54,8 @@ public class FileNode {
                     String known, String md5Hash, String sha1Hash,
                     String sha256Hash, MimeType mimeType, String extension,
                     short fileType, String mTime, String cTime, String aTime,
-                    String crTime, String fileSystemType, boolean hasAnalysisResults) {
+                    String crTime, String fileSystemType, boolean hasAnalysisResults,
+                    boolean isVirtual, boolean isDeleted, boolean isVolume, VolumeInfo volumeInfo) {
         this.name = name;
         this.path = path;
         this.type = type;
@@ -76,6 +81,10 @@ public class FileNode {
         this.crTime = crTime;
         this.fileSystemType = fileSystemType;
         this.hasAnalysisResults = hasAnalysisResults;
+        this.isVirtual = isVirtual;
+        this.isDeleted = isDeleted;
+        this.isVolume = isVolume;
+        this.volumeInfo = volumeInfo;
         this.children = new ArrayList<>();
     }
 
@@ -85,7 +94,47 @@ public class FileNode {
                     String known, String md5Hash, String sha1Hash,
                     String sha256Hash, MimeType mimeType, String extension,
                     short fileType, String mTime, String cTime, String aTime,
-                    String crTime, String fileSystemType, List<String> metaDataText, boolean hasAnalysisResults) {
+                    String crTime, String fileSystemType, boolean hasAnalysisResults,
+                    boolean isVirtual, boolean isDeleted, boolean isVolume) {
+        this.name = name;
+        this.path = path;
+        this.type = type;
+        this.id = id;
+        this.uid = uid;
+        this.gid = gid;
+        this.isDir = isDir;
+        this.isFile = isFile;
+        this.isRoot = isRoot;
+        this.size = size;
+        this.flagsDir = flagsDir;
+        this.flagsMeta = flagsMeta;
+        this.known = known;
+        this.md5Hash = md5Hash;
+        this.sha1Hash = sha1Hash;
+        this.sha256Hash = sha256Hash;
+        this.mimeType = mimeType;
+        this.extension = extension;
+        this.fileType = fileType;
+        this.mTime = mTime;
+        this.cTime = cTime;
+        this.aTime = aTime;
+        this.crTime = crTime;
+        this.fileSystemType = fileSystemType;
+        this.hasAnalysisResults = hasAnalysisResults;
+        this.isVirtual = isVirtual;
+        this.isDeleted = isDeleted;
+        this.isVolume = isVolume;
+        this.children = new ArrayList<>();
+    }
+
+    public FileNode(String name, String path, String type, long id,
+                    int uid, int gid, boolean isDir, boolean isFile, boolean isRoot,
+                    long size, String flagsDir, String flagsMeta,
+                    String known, String md5Hash, String sha1Hash,
+                    String sha256Hash, MimeType mimeType, String extension,
+                    short fileType, String mTime, String cTime, String aTime,
+                    String crTime, String fileSystemType, List<String> metaDataText, boolean hasAnalysisResults,
+                    boolean isVirtual, boolean isDeleted, boolean isVolume) {
         this.name = name;
         this.path = path;
         this.type = type;
@@ -112,6 +161,9 @@ public class FileNode {
         this.fileSystemType = fileSystemType;
         this.metaDataText = metaDataText;
         this.hasAnalysisResults = hasAnalysisResults;
+        this.isVirtual = isVirtual;
+        this.isDeleted = isDeleted;
+        this.isVolume = isVolume;
         this.children = new ArrayList<>();
     }
 
@@ -124,13 +176,13 @@ public class FileNode {
         List<String> metaDataText = new ArrayList<>();
         MimeType mimeType = new MimeType(SupportedMimeTypesUtil.MimeTypeList.NONE.getValue(), "", false);
         String uniquePath = "", fileSystemName = "";;
-
-        boolean hasAnalysisResults = false;
+        boolean hasAnalysisResults = false, isDeleted = false, isVolume = false;
 
         try {
             hasAnalysisResults = !content.getAllAnalysisResults().isEmpty();
             uniquePath = content.getUniquePath();
             fileSystemName = content.hasFileSystem() ? content.getFileSystem().getFsType().getDisplayName() : "";
+            isDeleted = content.isDirNameFlagSet(TskData.TSK_FS_NAME_FLAG_ENUM.UNALLOC);
             if (content instanceof FsContent fsContent) {
                 metaDataText = fsContent.getMetaDataText();
             }
@@ -163,7 +215,7 @@ public class FileNode {
                 content.getMetaFlagsAsString(), content.getKnown().getName(), content.getMd5Hash(), content.getSha1Hash(), content.getSha256Hash(),
                 mimeType, content.getNameExtension(), content.getType().getFileType(), content.getMtimeAsDate(), content.getCtimeAsDate(),
                 content.getAtimeAsDate(), content.getCrtimeAsDate(),
-                fileSystemName, metaDataText, hasAnalysisResults);
+                fileSystemName, metaDataText, hasAnalysisResults, content.isVirtual(), isDeleted, isVolume);
     }
 
     public static FileNode getNode(Content content) throws TskCoreException {
@@ -184,6 +236,24 @@ public class FileNode {
         node.setMetaDataText(metaDataText);
         node.setHasAnalysisResults(hasAnalysisResults);
         node.setMimeType(new MimeType(SupportedMimeTypesUtil.MimeTypeList.NONE.getValue(), "", false));
+
+        return node;
+    }
+
+    public static FileNode getNode(org.sleuthkit.datamodel.Volume volume) throws TskCoreException {
+        if (volume == null) { return new FileNode(); }
+        FileNode node = new FileNode();
+        VolumeInfo volumeInfo;
+
+        boolean hasAnalysisResults = !volume.getAllAnalysisResults().isEmpty();
+
+        node.setName(volume.getName());
+        node.setPath(volume.getUniquePath());
+        node.setId(volume.getId());
+        node.setSize(volume.getSize());
+        node.setHasAnalysisResults(hasAnalysisResults);
+        volumeInfo = new VolumeInfo(volume.getStart(), volume.getLength(), volume.getDescription(), volume.getFlagsAsString());
+        node.setVolumeInfo(volumeInfo);
 
         return node;
     }

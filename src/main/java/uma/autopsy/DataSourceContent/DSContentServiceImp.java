@@ -44,9 +44,7 @@ public class DSContentServiceImp implements DSContentService {
                 tree = treeBuilder.buildTree(content);
             }
 
-        } catch (TskCoreException e) {
-            throw new RuntimeException(e);
-        } catch (TskDataException e) {
+        } catch (TskCoreException | TskDataException e) {
             throw new RuntimeException(e);
         }
 
@@ -70,6 +68,9 @@ public class DSContentServiceImp implements DSContentService {
             if (file != null) {
                 return FileNode.getNode(file);
             } else if (content != null) {
+                if (content instanceof Volume volume) {
+                    return FileNode.getNode(volume);
+                }
                 return FileNode.getNode(content);
             } else {
                 return new FileNode();
