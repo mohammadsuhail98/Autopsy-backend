@@ -3,7 +3,7 @@ package uma.autopsy.Devices;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import uma.autopsy.Cases.Case;
+import uma.autopsy.Cases.Models.Case;
 
 import java.sql.Timestamp;
 import java.util.List;

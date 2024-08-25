@@ -7,7 +7,7 @@ import org.sleuthkit.datamodel.SleuthkitCase.CaseDbTransaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import uma.autopsy.Cases.Case;
+import uma.autopsy.Cases.Models.Case;
 import uma.autopsy.Cases.CaseRepository;
 import uma.autopsy.Exceptions.CaseDoesNotExistException;
 import uma.autopsy.Exceptions.ResourceNotFoundException;
@@ -192,7 +192,17 @@ public class DataSourceServiceImp implements DataSourceService {
 
     public void deleteDataSource(int caseId, int dataSourceId,  String deviceId) {
         DataSource dataSource = getDataSourceById(caseId, dataSourceId, deviceId);
-        dataSourceRepository.delete(dataSource);
+        if (!validateDeviceId(deviceId, dataSource.getCaseEntity())) {  throw new RuntimeException("Not Authorized for this operation"); }
+
+        SleuthkitCase skcase = null;
+
+        try {
+            skcase = SleuthkitCase.openCase(dataSource.getCaseEntity().getCasePath());
+            SleuthkitCaseAdminUtil.deleteDataSource(skcase, dataSource.getDataSourceId());
+            dataSourceRepository.delete(dataSource);
+        } catch (TskCoreException e) {
+            throw new CaseDoesNotExistException(e.getLocalizedMessage());
+        }
     }
 
     private Case getCase(int caseId){

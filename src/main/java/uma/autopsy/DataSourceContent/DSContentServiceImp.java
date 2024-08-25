@@ -1,6 +1,11 @@
 package uma.autopsy.DataSourceContent;
 
+import org.sleuthkit.autopsy.casemodule.Case;
+import org.sleuthkit.autopsy.casemodule.CaseActionException;
+import org.sleuthkit.autopsy.casemodule.services.Services;
+import org.sleuthkit.autopsy.centralrepository.datamodel.CentralRepository;
 import org.sleuthkit.autopsy.coreutils.StringExtract;
+import org.sleuthkit.autopsy.ingest.IngestServices;
 import org.sleuthkit.datamodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +19,9 @@ import uma.autopsy.Exceptions.UnsupportedMimeTypeException;
 import uma.autopsy.Utils.DirectoryTreeBuilder;
 import uma.autopsy.Utils.HexExtractor;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 

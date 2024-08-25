@@ -6,7 +6,7 @@ import org.sleuthkit.datamodel.SleuthkitCase;
 import org.sleuthkit.datamodel.TskCoreException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uma.autopsy.Cases.Case;
+import uma.autopsy.Cases.Models.Case;
 import uma.autopsy.Cases.CaseRepository;
 import uma.autopsy.DataSourceContent.Models.FileNode;
 import uma.autopsy.Exceptions.CaseDoesNotExistException;

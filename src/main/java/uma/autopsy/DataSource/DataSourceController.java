@@ -64,7 +64,7 @@ public class DataSourceController {
                                                  @PathVariable("dataSourceId") int dataSourceId,
                                                  @RequestHeader("deviceId") String deviceId) {
         dataSourceService.deleteDataSource(caseId, dataSourceId, deviceId);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }

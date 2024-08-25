@@ -2,12 +2,10 @@ package uma.autopsy.DataSource;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import uma.autopsy.Cases.Case;
-import uma.autopsy.Devices.Device;
+import uma.autopsy.Cases.Models.Case;
 
 import java.sql.Timestamp;
 

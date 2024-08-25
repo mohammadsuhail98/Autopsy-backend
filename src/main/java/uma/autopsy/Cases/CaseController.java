@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uma.autopsy.Cases.Models.Case;
+import uma.autopsy.Cases.Models.UpdateCaseRequest;
 
 import java.util.List;
 
@@ -42,6 +44,12 @@ public class CaseController {
     public ResponseEntity<?> getCasesByDeviceId(@RequestHeader("deviceId") String deviceId) {
         List<Case> cases = caseService.getCasesByDeviceId(deviceId);
         return new ResponseEntity<>(cases, HttpStatus.OK);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCase(@ModelAttribute UpdateCaseRequest caseRequest,
+                                        @RequestHeader("deviceId") String deviceId) {
+        return new ResponseEntity<>(caseService.updateCase(caseRequest, deviceId), HttpStatus.OK);
     }
 
 }

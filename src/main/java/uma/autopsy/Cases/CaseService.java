@@ -1,5 +1,8 @@
 package uma.autopsy.Cases;
 
+import uma.autopsy.Cases.Models.Case;
+import uma.autopsy.Cases.Models.UpdateCaseRequest;
+
 import java.util.List;
 
 public interface CaseService {
@@ -8,4 +11,6 @@ public interface CaseService {
     List<Case> getAllCases();
     List<Case> getCasesByDeviceId(String deviceId);
     void deleteCaseByIdAndDeviceId(int id, String deviceId);;
+    Case updateCase(UpdateCaseRequest caseRequest, String deviceId);
+
 }

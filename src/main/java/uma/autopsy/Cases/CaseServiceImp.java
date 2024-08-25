@@ -13,6 +13,8 @@ import java.nio.file.Paths;
 import java.util.*;
 import org.sleuthkit.datamodel.SleuthkitCase;
 import org.sleuthkit.datamodel.TskCoreException;
+import uma.autopsy.Cases.Models.Case;
+import uma.autopsy.Cases.Models.UpdateCaseRequest;
 import uma.autopsy.Exceptions.CaseAlreadyExistsException;
 import uma.autopsy.Exceptions.CaseDoesNotExistException;
 import uma.autopsy.Devices.Device;
@@ -37,6 +39,7 @@ public class CaseServiceImp implements CaseService {
         try {
             SleuthkitCase skCase = SleuthkitCase.newCase(STR."\{getCaseDir(caseEntity.getDeviceId(), caseEntity.getName())}/\{caseEntity.getName()}");
             caseEntity.setCasePath(STR."\{skCase.getDbDirPath()}/\{skCase.getDatabaseName()}");
+
         } catch (TskCoreException e) {
             throw new RuntimeException(e);
         }
@@ -74,6 +77,7 @@ public class CaseServiceImp implements CaseService {
     public Case getCase(int id, String deviceId){
         Optional<Case> caseOptional = caseRepository.findByIdAndDeviceId(id, deviceId);
         if (caseOptional.isPresent()) {
+            if (!validateDeviceId(deviceId, caseOptional.get())) {  throw new RuntimeException("Not Authorized for this operation"); }
             return caseOptional.get();
         } else {
             throw new CaseDoesNotExistException(STR."Case not found with id: \{id}");
@@ -86,6 +90,25 @@ public class CaseServiceImp implements CaseService {
 
     public List<Case> getCasesByDeviceId(String deviceId) {
         return caseRepository.findByDeviceId(deviceId);
+    }
+
+    @Override
+    public Case updateCase(UpdateCaseRequest caseRequest, String deviceId) {
+        Optional<Case> caseOptional = caseRepository.findByIdAndDeviceId(caseRequest.getCaseId(), deviceId);
+
+        if (caseOptional.isPresent()) {
+            Case caseEntity = caseOptional.get();
+            if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
+
+            caseEntity.setExaminerName(caseRequest.getExaminerName());
+            caseEntity.setExaminerEmail(caseRequest.getExaminerEmail());
+            caseEntity.setExaminerPhone(caseRequest.getExaminerPhone());
+            caseEntity.setExaminerNotes(caseRequest.getExaminerNotes());
+
+            return caseRepository.save(caseEntity);
+        } else {
+            throw new CaseDoesNotExistException(STR."Case not found with id: \{caseRequest.getCaseId()}");
+        }
     }
 
     public void deleteCaseByIdAndDeviceId(int id, String deviceId) {
@@ -103,7 +126,6 @@ public class CaseServiceImp implements CaseService {
         try {
             Path path = Paths.get(caseFilePath);
             Files.deleteIfExists(path);
-            System.out.println(path.getParent());
             deleteDirIfEmpty(path.getParent());
         } catch (IOException e) {
             throw new RuntimeException(STR."Failed to delete case file: \{caseFilePath}", e);
@@ -140,6 +162,10 @@ public class CaseServiceImp implements CaseService {
         } catch (IOException e) {
             throw new RuntimeException("Failed to re-check directory: " + directory, e);
         }
+    }
+
+    boolean validateDeviceId(String deviceId, Case caseEntity){
+        return deviceId.equalsIgnoreCase(caseEntity.getDeviceId());
     }
 
 }

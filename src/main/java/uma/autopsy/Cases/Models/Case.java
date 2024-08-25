@@ -1,4 +1,4 @@
-package uma.autopsy.Cases;
+package uma.autopsy.Cases.Models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;

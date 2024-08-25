@@ -3,13 +3,11 @@ package uma.autopsy.GeoLocation;
 import org.sleuthkit.datamodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import uma.autopsy.Cases.Case;
+import uma.autopsy.Cases.Models.Case;
 import uma.autopsy.Cases.CaseRepository;
 import uma.autopsy.Exceptions.CaseDoesNotExistException;
 import uma.autopsy.GlobalProperties.GlobalProperties;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
