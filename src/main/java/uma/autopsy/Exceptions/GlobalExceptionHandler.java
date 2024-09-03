@@ -36,8 +36,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CaseDoesNotExistException.class)
     public ResponseEntity<ErrorResponse> handleCaseDoesNotExistsException(CaseDoesNotExistException ex, WebRequest request) {
-        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.CONFLICT.value(), request.getDescription(false), ex.getMessage());
-        return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
+        ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), request.getDescription(false), ex.getMessage());
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(BadRequestException.class)

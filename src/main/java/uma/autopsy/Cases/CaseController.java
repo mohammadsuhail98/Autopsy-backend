@@ -18,7 +18,7 @@ public class CaseController {
     private CaseService caseService;
 
     @PostMapping
-    public ResponseEntity<?> createCase(@Valid @ModelAttribute Case caseEntity) {
+    public ResponseEntity<?> createCase(@Valid @RequestBody Case caseEntity) {
         return new ResponseEntity<>(caseService.createCase(caseEntity), HttpStatus.OK);
     }
 
@@ -47,7 +47,7 @@ public class CaseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCase(@ModelAttribute UpdateCaseRequest caseRequest,
+    public ResponseEntity<?> updateCase(@RequestBody UpdateCaseRequest caseRequest,
                                         @RequestHeader("deviceId") String deviceId) {
         return new ResponseEntity<>(caseService.updateCase(caseRequest, deviceId), HttpStatus.OK);
     }

@@ -100,6 +100,7 @@ public class CaseServiceImp implements CaseService {
             Case caseEntity = caseOptional.get();
             if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
+            caseEntity.setNumber(caseRequest.getNumber());
             caseEntity.setExaminerName(caseRequest.getExaminerName());
             caseEntity.setExaminerEmail(caseRequest.getExaminerEmail());
             caseEntity.setExaminerPhone(caseRequest.getExaminerPhone());

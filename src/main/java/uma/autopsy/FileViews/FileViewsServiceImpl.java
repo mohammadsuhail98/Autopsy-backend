@@ -60,8 +60,7 @@ public class FileViewsServiceImpl implements FileViewsService {
             String query = STR."SELECT mime_type, count(*) AS count FROM tsk_files WHERE mime_type IS NOT null AND \{QueryGenerator.getBaseWhereExprQuery()} GROUP BY mime_type";
 
             final HashMap<String, Map<String, Long>> existingMimeTypeCounts = new HashMap<>();
-            System.out.println(QueryGenerator.getBaseWhereExprQuery());
-            System.out.println(query);
+
             SleuthkitCase.CaseDbQuery dbQuery = skcase.executeQuery(query);
 
             ResultSet resultSet = dbQuery.getResultSet();

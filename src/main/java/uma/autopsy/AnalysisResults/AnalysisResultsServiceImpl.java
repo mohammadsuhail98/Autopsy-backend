@@ -38,8 +38,13 @@ public class AnalysisResultsServiceImpl implements AnalysisResultsService {
             for (var dataSource: skcase.getDataSources()){
                 var artifactTypesInUse = skcase.getBlackboard().getArtifactTypesInUse(dataSource.getId());
                 for (var artifactTypeInUse: artifactTypesInUse) {
-                    AnalysisResultType analysisResultType = new AnalysisResultType(artifactTypeInUse.getTypeID(), artifactTypeInUse.getDisplayName());
-                    analysisResultTypes.add(analysisResultType);
+                    long typeId = artifactTypeInUse.getTypeID();
+                    boolean exists = analysisResultTypes.stream()
+                            .anyMatch(art -> art.getId() == typeId);
+                    if (!exists) {
+                        AnalysisResultType analysisResultType = new AnalysisResultType(typeId, artifactTypeInUse.getDisplayName());
+                        analysisResultTypes.add(analysisResultType);
+                    }
                 }
             }
             return analysisResultTypes;

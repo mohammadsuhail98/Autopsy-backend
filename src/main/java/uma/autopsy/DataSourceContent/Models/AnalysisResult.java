@@ -1,38 +1,29 @@
 package uma.autopsy.DataSourceContent.Models;
 
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class AnalysisResult {
-
+    private static final AtomicInteger counter = new AtomicInteger();
+    private int id;
     private String itemName;
     private String aggregateScore;
     private List<AnalysisResultDetail> analysisResults;
 
-    public AnalysisResult(String itemName, String aggregateScore) {
-        this.itemName = itemName;
-        this.aggregateScore = aggregateScore;
-        this.analysisResults = new ArrayList<>();
-    }
-
-    public void addAnalysisResultsDetails(AnalysisResultDetail analysisResultDetail){
-        this.analysisResults.add(analysisResultDetail);
+    public AnalysisResult() {
+        this.id = counter.incrementAndGet();
     }
 
     @Getter
     @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
     public static class AnalysisResultDetail {
+        private int id;
         private String score;
         private String type;
         private String configuration;
@@ -45,6 +36,9 @@ public class AnalysisResult {
         private String latitude;
         private String longitude;
         private String altitude;
-    }
 
+        public AnalysisResultDetail() {
+            this.id = counter.incrementAndGet();
+        }
+    }
 }

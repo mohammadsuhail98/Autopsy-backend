@@ -60,10 +60,11 @@ public class GeoLocationServiceImpl implements GeoLocationService {
             skcase = SleuthkitCase.openCase(caseEntity.getCasePath());
             Collection<BlackboardArtifact.Type> types = new ArrayList<>();
             types.add(BlackboardArtifact.Type.TSK_METADATA_EXIF);
-
-            var artifactList = skcase.getBlackboard().getArtifacts(types, dataSourceIds);
-
-            return getGeoLocations(skcase, artifactList);
+            if (dataSourceIds != null) {
+                var artifactList = skcase.getBlackboard().getArtifacts(types, dataSourceIds);
+                return getGeoLocations(skcase, artifactList);
+            }
+            return getGeoLocations(skcase, new ArrayList<>());
         } catch (TskCoreException e) {
             throw new RuntimeException(e.getLocalizedMessage());
         }
@@ -108,6 +109,11 @@ public class GeoLocationServiceImpl implements GeoLocationService {
         }
 
         return geoLocationList;
+    }
+
+    @Override
+    public byte[] getImage(String path) {
+        return new byte[0];
     }
 
     boolean validateDeviceId(String deviceId, Case caseEntity){

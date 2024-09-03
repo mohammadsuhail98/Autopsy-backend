@@ -7,6 +7,12 @@ import uma.autopsy.DataSourceContent.Models.VolumeInfo;
 
 public class DirectoryTreeBuilder {
 
+    private long dataSourceId;
+
+    public void setDataSourceId(long dataSourceId) {
+        this.dataSourceId = dataSourceId;
+    }
+
     public FileNode buildTree(Content content) throws TskCoreException {
 
         boolean isDir = false, isFile = false, isRoot = false, hasAnalysisResults = false;
@@ -23,6 +29,10 @@ public class DirectoryTreeBuilder {
         name = content.getName();
         path = content.getUniquePath();
 
+        if (name.contains("slack")) {
+            return null;
+        }
+
         if (content instanceof Volume volume) {
             isVolume = true;
             volumeInfo = new VolumeInfo(
@@ -36,7 +46,9 @@ public class DirectoryTreeBuilder {
 
             try {
                 var detector = new FileTypeDetector();
-                mimeType = SupportedMimeTypesUtil.getMimeTypeModel(detector.getMIMEType(file));
+                if (file.exists()) {
+                    mimeType = SupportedMimeTypesUtil.getMimeTypeModel(detector.getMIMEType(file));
+                }
             } catch (FileTypeDetector.FileTypeDetectorInitException e) {
                 mimeType = new MimeType(SupportedMimeTypesUtil.MimeTypeList.NONE.getValue(), file.getMIMEType(), false);
                 System.out.println(e.getLocalizedMessage());
@@ -70,12 +82,14 @@ public class DirectoryTreeBuilder {
         FileNode node = new FileNode(name, path, type, id, uid, gid, isDir, isFile,
                 isRoot, size, flagsDir, flagsMeta, known, md5Hash, sha1Hash,
                 sha256Hash, mimeType, extension, fileType, mTime, cTime, aTime,
-                crTime, fileSystemType, hasAnalysisResults, isVirtual, isDeleted, isVolume, volumeInfo);
+                crTime, fileSystemType, hasAnalysisResults, isVirtual, isDeleted, isVolume, volumeInfo, dataSourceId);
 
         for (Content child : content.getChildren()) {
-            node.addChild(buildTree(child));
+            FileNode childNode = buildTree(child);
+            if (childNode != null) {
+                node.addChild(childNode);
+            }
         }
-
         return node;
     }
 

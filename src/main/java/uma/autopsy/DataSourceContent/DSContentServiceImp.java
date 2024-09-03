@@ -1,6 +1,5 @@
 package uma.autopsy.DataSourceContent;
 
-import org.sleuthkit.autopsy.casemodule.Case;
 import org.sleuthkit.autopsy.casemodule.CaseActionException;
 import org.sleuthkit.autopsy.casemodule.services.Services;
 import org.sleuthkit.autopsy.centralrepository.datamodel.CentralRepository;
@@ -11,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.sleuthkit.autopsy.coreutils.StringExtract.*;
 import uma.autopsy.Cases.CaseRepository;
+import uma.autopsy.Cases.Models.Case;
 import uma.autopsy.DataSource.DataSource;
 import uma.autopsy.DataSourceContent.Models.AnalysisResult;
 import uma.autopsy.DataSourceContent.Models.FileNode;
+import uma.autopsy.Exceptions.CaseDoesNotExistException;
 import uma.autopsy.Exceptions.ResourceNotFoundException;
 import uma.autopsy.Exceptions.UnsupportedMimeTypeException;
 import uma.autopsy.Utils.DirectoryTreeBuilder;
@@ -48,6 +49,7 @@ public class DSContentServiceImp implements DSContentService {
             var skcaseDataSource = skcase.getDataSource(dataSource.getDataSourceId());
 
             DirectoryTreeBuilder treeBuilder = new DirectoryTreeBuilder();
+            treeBuilder.setDataSourceId(dataSourceId);
             for (var content: skcaseDataSource.getChildren()) {
                 tree = treeBuilder.buildTree(content);
             }
@@ -60,16 +62,14 @@ public class DSContentServiceImp implements DSContentService {
     }
 
     @Override
-    public FileNode getFileContent(int dataSourceId, String deviceId, int fileId){
-        DataSource dataSource = dsContentRepository.findById(dataSourceId)
-                .orElseThrow(() -> new ResourceNotFoundException("DataSource not found for this id: " + dataSourceId));
-        if (!validateDeviceId(deviceId, dataSource)) {  throw new RuntimeException("Not Authorized for this operation"); }
+    public FileNode getFileContent(int caseId, String deviceId, int fileId){
+        Case caseEntity = getCase(caseId);
+        if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
-        String caseDir = dataSource.getCaseEntity().getCasePath();
         SleuthkitCase skcase = null;
 
         try {
-            skcase = SleuthkitCase.openCase(caseDir);
+            skcase = SleuthkitCase.openCase(caseEntity.getCasePath());
             Content content = skcase.getContentById(fileId);
             AbstractFile file = skcase.getAbstractFileById(fileId);
 
@@ -89,65 +89,72 @@ public class DSContentServiceImp implements DSContentService {
         }
     }
     @Override
-    public byte[] getHexFile(int dataSourceId, String deviceId, int fileId){
-        DataSource dataSource = dsContentRepository.findById(dataSourceId)
-                .orElseThrow(() -> new ResourceNotFoundException("DataSource not found for this id: " + dataSourceId));
-        if (!validateDeviceId(deviceId, dataSource)) {  throw new RuntimeException("Not Authorized for this operation"); }
+    public String getHexFile(int caseId, String deviceId, int fileId){
+        Case caseEntity = getCase(caseId);
+        if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
-        String caseDir = dataSource.getCaseEntity().getCasePath();
-        System.out.println(caseDir);
         SleuthkitCase skcase = null;
 
         try {
-            skcase = SleuthkitCase.openCase(caseDir);
+            skcase = SleuthkitCase.openCase(caseEntity.getCasePath());
+
+            if (skcase == null) { return "Something went wrong, please try again!"; }
             AbstractFile file = skcase.getAbstractFileById(fileId);
-            byte[] contentBytes = new byte[(int) file.getSize()];
-            file.read(contentBytes, 0, contentBytes.length);
-            return HexExtractor.toHexString(contentBytes).getBytes();
+            if (file == null) { return "The hex of the file couldnt be found in the system"; }
+            if (file.exists()) {
+                byte[] contentBytes = new byte[(int) file.getSize()];
+                file.read(contentBytes, 0, contentBytes.length);
+                if (contentBytes == null) { return "The file has no content"; }
+                if (contentBytes.length == 0) { return "This file has zero hex content"; }
+                return HexExtractor.toHexString(contentBytes);
+            }
+            return "Problem with the selected file!";
         } catch (TskCoreException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getLocalizedMessage());
         }
     }
 
     @Override
-    public byte[] getTextFile(int dataSourceId, String deviceId, int fileId){
-        DataSource dataSource = dsContentRepository.findById(dataSourceId)
-                .orElseThrow(() -> new ResourceNotFoundException("DataSource not found for this id: " + dataSourceId));
-        if (!validateDeviceId(deviceId, dataSource)) {  throw new RuntimeException("Not Authorized for this operation"); }
+    public byte[] getTextFile(int caseId, String deviceId, int fileId){
+        Case caseEntity = getCase(caseId);
+        if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
-        String caseDir = dataSource.getCaseEntity().getCasePath();
-        System.out.println(caseDir);
         SleuthkitCase skcase = null;
+        var errorStr = "Something went wrong, please try again!";
+        var errorBytes = errorStr.getBytes();
 
-        javax.swing.JComboBox<StringExtract.StringExtractUnicodeTable.SCRIPT> languageCombo;
         try {
-            skcase = SleuthkitCase.openCase(caseDir);
+            skcase = SleuthkitCase.openCase(caseEntity.getCasePath());
+            if (skcase == null) { return errorBytes; }
             AbstractFile file = skcase.getAbstractFileById(fileId);
-            byte[] contentBytes = new byte[(int) file.getSize()];
-            file.read(contentBytes, 0, contentBytes.length);
-            StringExtract stringExtract = new StringExtract();
-            stringExtract.setEnableUTF8(true);
-            stringExtract.setEnabledScript(StringExtractUnicodeTable.SCRIPT.LATIN_1);
-            StringExtractResult res = stringExtract.extract(contentBytes, contentBytes.length, 0);
+            if (file == null) { return "The text of the file couldnt be found in the system".getBytes(); }
+            if (file.exists()) {
+                byte[] contentBytes = new byte[(int) file.getSize()];
+                file.read(contentBytes, 0, contentBytes.length);
+                if (contentBytes == null) { return "The file has no content".getBytes(); }
+                if (contentBytes.length == 0) { return "This file has zero hex content".getBytes(); }
+                StringExtract stringExtract = new StringExtract();
+                stringExtract.setEnableUTF8(true);
+                stringExtract.setEnabledScript(StringExtractUnicodeTable.SCRIPT.LATIN_1);
+                StringExtractResult res = stringExtract.extract(contentBytes, contentBytes.length, 0);
 
-            return res.getText().getBytes();
+                return res.getText().getBytes();
+            }
+            return "Problem with the selected file!".getBytes();
         } catch (TskCoreException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getLocalizedMessage());
         }
     }
 
     @Override
-    public AbstractFile getApplicationFile(int dataSourceId, String deviceId, int fileId) {
-        DataSource dataSource = dsContentRepository.findById(dataSourceId)
-                .orElseThrow(() -> new ResourceNotFoundException("DataSource not found for this id: " + dataSourceId));
-        if (!validateDeviceId(deviceId, dataSource)) {  throw new RuntimeException("Not Authorized for this operation"); }
+    public AbstractFile getApplicationFile(int caseId, String deviceId, int fileId) {
+        Case caseEntity = getCase(caseId);
+        if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
-        String caseDir = dataSource.getCaseEntity().getCasePath();
-        System.out.println(caseDir);
         SleuthkitCase skcase = null;
 
         try {
-            skcase = SleuthkitCase.openCase(caseDir);
+            skcase = SleuthkitCase.openCase(caseEntity.getCasePath());
             AbstractFile file = skcase.getAbstractFileById(fileId);
             FileNode fileNode = FileNode.getNode(file);
 
@@ -163,17 +170,14 @@ public class DSContentServiceImp implements DSContentService {
     }
 
     @Override
-    public AnalysisResult getAnalysisResult(int dataSourceId, String deviceId, int fileId) {
-        DataSource dataSource = dsContentRepository.findById(dataSourceId)
-                .orElseThrow(() -> new ResourceNotFoundException("DataSource not found for this id: " + dataSourceId));
-        if (!validateDeviceId(deviceId, dataSource)) {  throw new RuntimeException("Not Authorized for this operation"); }
+    public AnalysisResult getAnalysisResult(int caseId, String deviceId, int fileId) {
+        Case caseEntity = getCase(caseId);
+        if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
-        String caseDir = dataSource.getCaseEntity().getCasePath();
-        System.out.println(caseDir);
         SleuthkitCase skcase = null;
 
         try {
-            skcase = SleuthkitCase.openCase(caseDir);
+            skcase = SleuthkitCase.openCase(caseEntity.getCasePath());
             Content content = skcase.getContentById(fileId);
 
             var results = content.getAllAnalysisResults();
@@ -224,17 +228,26 @@ public class DSContentServiceImp implements DSContentService {
             } else if (type.equals(BlackboardAttribute.Type.TSK_DEVICE_MODEL)) {
                 analysisResultDetails.setDeviceModel(displayString);
             } else if (type.equals(BlackboardAttribute.Type.TSK_GEO_LATITUDE)) {
-                analysisResultDetails.setLatitude(displayString);
+                analysisResultDetails.setLatitude(attribute.getDisplayString());
             } else if (type.equals(BlackboardAttribute.Type.TSK_GEO_LONGITUDE)) {
-                analysisResultDetails.setLongitude(displayString);
+                analysisResultDetails.setLongitude(attribute.getDisplayString());
             } else if (type.equals(BlackboardAttribute.Type.TSK_GEO_ALTITUDE)) {
-                analysisResultDetails.setAltitude(displayString);
+                analysisResultDetails.setAltitude(attribute.getDisplayString());
             }
         }
         return analysisResultDetails;
     }
 
+    private Case getCase(int caseId){
+        return caseRepository.findById(caseId)
+                .orElseThrow(() -> new CaseDoesNotExistException(STR."Case not found for this id : \{caseId}"));
+    }
+
     boolean validateDeviceId(String deviceId, DataSource dataSourceEntity){
         return deviceId.equalsIgnoreCase(dataSourceEntity.getCaseEntity().getDeviceId());
+    }
+
+    boolean validateDeviceId(String deviceId, Case caseEntity){
+        return deviceId.equalsIgnoreCase(caseEntity.getDeviceId());
     }
 }

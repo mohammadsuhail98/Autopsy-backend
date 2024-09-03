@@ -9,6 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AnalysisResultType {
-    private int id;
+    private long id;
     private String name;
 }

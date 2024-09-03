@@ -47,6 +47,7 @@ public class FileNode {
     private boolean isDeleted;
     private boolean isVolume;
     private VolumeInfo volumeInfo;
+    private long dataSourceId;
 
     public FileNode(String name, String path, String type, long id,
                     int uid, int gid, boolean isDir, boolean isFile, boolean isRoot,
@@ -55,7 +56,7 @@ public class FileNode {
                     String sha256Hash, MimeType mimeType, String extension,
                     short fileType, String mTime, String cTime, String aTime,
                     String crTime, String fileSystemType, boolean hasAnalysisResults,
-                    boolean isVirtual, boolean isDeleted, boolean isVolume, VolumeInfo volumeInfo) {
+                    boolean isVirtual, boolean isDeleted, boolean isVolume, VolumeInfo volumeInfo, long dataSourceId) {
         this.name = name;
         this.path = path;
         this.type = type;
@@ -85,6 +86,7 @@ public class FileNode {
         this.isDeleted = isDeleted;
         this.isVolume = isVolume;
         this.volumeInfo = volumeInfo;
+        this.dataSourceId = dataSourceId;
         this.children = new ArrayList<>();
     }
 
@@ -134,7 +136,7 @@ public class FileNode {
                     String sha256Hash, MimeType mimeType, String extension,
                     short fileType, String mTime, String cTime, String aTime,
                     String crTime, String fileSystemType, List<String> metaDataText, boolean hasAnalysisResults,
-                    boolean isVirtual, boolean isDeleted, boolean isVolume) {
+                    boolean isVirtual, boolean isDeleted, boolean isVolume, long dataSourceId) {
         this.name = name;
         this.path = path;
         this.type = type;
@@ -164,6 +166,7 @@ public class FileNode {
         this.isVirtual = isVirtual;
         this.isDeleted = isDeleted;
         this.isVolume = isVolume;
+        this.dataSourceId = dataSourceId;
         this.children = new ArrayList<>();
     }
 
@@ -215,7 +218,7 @@ public class FileNode {
                 content.getMetaFlagsAsString(), content.getKnown().getName(), content.getMd5Hash(), content.getSha1Hash(), content.getSha256Hash(),
                 mimeType, content.getNameExtension(), content.getType().getFileType(), content.getMtimeAsDate(), content.getCtimeAsDate(),
                 content.getAtimeAsDate(), content.getCrtimeAsDate(),
-                fileSystemName, metaDataText, hasAnalysisResults, content.isVirtual(), isDeleted, isVolume);
+                fileSystemName, metaDataText, hasAnalysisResults, content.isVirtual(), isDeleted, isVolume, content.getDataSourceObjectId());
     }
 
     public static FileNode getNode(Content content) throws TskCoreException {
@@ -236,7 +239,7 @@ public class FileNode {
         node.setMetaDataText(metaDataText);
         node.setHasAnalysisResults(hasAnalysisResults);
         node.setMimeType(new MimeType(SupportedMimeTypesUtil.MimeTypeList.NONE.getValue(), "", false));
-
+        node.setDataSourceId(content.getDataSource().getId());
         return node;
     }
 
@@ -254,7 +257,7 @@ public class FileNode {
         node.setHasAnalysisResults(hasAnalysisResults);
         volumeInfo = new VolumeInfo(volume.getStart(), volume.getLength(), volume.getDescription(), volume.getFlagsAsString());
         node.setVolumeInfo(volumeInfo);
-
+        node.setDataSourceId(volume.getDataSource().getId());
         return node;
     }
 

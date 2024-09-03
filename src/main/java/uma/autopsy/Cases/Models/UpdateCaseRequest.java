@@ -8,6 +8,7 @@ import lombok.Setter;
 public class UpdateCaseRequest {
     @NotBlank(message = "Case ID is mandatory")
     private int caseId;
+    private int number;
     private String examinerName;
     private String examinerPhone;
     private String examinerEmail;
