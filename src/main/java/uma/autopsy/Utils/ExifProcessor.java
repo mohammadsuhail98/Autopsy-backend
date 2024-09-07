@@ -188,7 +188,7 @@ public class ExifProcessor {
     }
 
     public Set<String> mimeTypes() {
-        return new HashSet<>(Set.of("audio/x-wav", "image/jpeg", "image/tiff", "image/heic"));
+        return new HashSet<>(Set.of("image/jpeg", "image/tiff", "image/heic"));
     }
 }
 

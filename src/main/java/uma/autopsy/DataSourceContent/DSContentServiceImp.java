@@ -1,10 +1,6 @@
 package uma.autopsy.DataSourceContent;
 
-import org.sleuthkit.autopsy.casemodule.CaseActionException;
-import org.sleuthkit.autopsy.casemodule.services.Services;
-import org.sleuthkit.autopsy.centralrepository.datamodel.CentralRepository;
 import org.sleuthkit.autopsy.coreutils.StringExtract;
-import org.sleuthkit.autopsy.ingest.IngestServices;
 import org.sleuthkit.datamodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,15 +10,12 @@ import uma.autopsy.Cases.Models.Case;
 import uma.autopsy.DataSource.DataSource;
 import uma.autopsy.DataSourceContent.Models.AnalysisResult;
 import uma.autopsy.DataSourceContent.Models.FileNode;
-import uma.autopsy.Exceptions.CaseDoesNotExistException;
+import uma.autopsy.Exceptions.CaseNotFoundException;
 import uma.autopsy.Exceptions.ResourceNotFoundException;
 import uma.autopsy.Exceptions.UnsupportedMimeTypeException;
 import uma.autopsy.Utils.DirectoryTreeBuilder;
 import uma.autopsy.Utils.HexExtractor;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -240,7 +233,7 @@ public class DSContentServiceImp implements DSContentService {
 
     private Case getCase(int caseId){
         return caseRepository.findById(caseId)
-                .orElseThrow(() -> new CaseDoesNotExistException(STR."Case not found for this id : \{caseId}"));
+                .orElseThrow(() -> new CaseNotFoundException(STR."Case not found for this id : \{caseId}"));
     }
 
     boolean validateDeviceId(String deviceId, DataSource dataSourceEntity){

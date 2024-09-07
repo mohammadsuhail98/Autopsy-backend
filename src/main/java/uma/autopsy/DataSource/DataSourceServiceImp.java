@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import uma.autopsy.Cases.Models.Case;
 import uma.autopsy.Cases.CaseRepository;
-import uma.autopsy.Exceptions.CaseDoesNotExistException;
+import uma.autopsy.Exceptions.CaseNotFoundException;
 import uma.autopsy.Exceptions.ResourceNotFoundException;
 import uma.autopsy.GlobalProperties.GlobalProperties;
 import uma.autopsy.Utils.DiskImageValidator;
@@ -194,20 +194,18 @@ public class DataSourceServiceImp implements DataSourceService {
         DataSource dataSource = getDataSourceById(caseId, dataSourceId, deviceId);
         if (!validateDeviceId(deviceId, dataSource.getCaseEntity())) {  throw new RuntimeException("Not Authorized for this operation"); }
 
-        SleuthkitCase skcase = null;
-
         try {
-            skcase = SleuthkitCase.openCase(dataSource.getCaseEntity().getCasePath());
+            SleuthkitCase skcase = SleuthkitCase.openCase(dataSource.getCaseEntity().getCasePath());
             SleuthkitCaseAdminUtil.deleteDataSource(skcase, dataSource.getDataSourceId());
             dataSourceRepository.delete(dataSource);
         } catch (TskCoreException e) {
-            throw new CaseDoesNotExistException(e.getLocalizedMessage());
+            throw new CaseNotFoundException(e.getLocalizedMessage());
         }
     }
 
     private Case getCase(int caseId){
         return caseRepository.findById(caseId)
-                .orElseThrow(() -> new CaseDoesNotExistException(STR."Case not found for this id : \{caseId}"));
+                .orElseThrow(() -> new CaseNotFoundException(STR."Case not found for this id : \{caseId}"));
     }
 
 }

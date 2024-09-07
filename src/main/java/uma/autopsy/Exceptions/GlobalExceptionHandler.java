@@ -1,6 +1,5 @@
 package uma.autopsy.Exceptions;
 
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -34,8 +33,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
-    @ExceptionHandler(CaseDoesNotExistException.class)
-    public ResponseEntity<ErrorResponse> handleCaseDoesNotExistsException(CaseDoesNotExistException ex, WebRequest request) {
+    @ExceptionHandler(CaseNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleCaseDoesNotExistsException(CaseNotFoundException ex, WebRequest request) {
         ErrorResponse errorResponse = new ErrorResponse(HttpStatus.NOT_FOUND.value(), request.getDescription(false), ex.getMessage());
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }

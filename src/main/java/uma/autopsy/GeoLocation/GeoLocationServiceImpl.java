@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uma.autopsy.Cases.Models.Case;
 import uma.autopsy.Cases.CaseRepository;
-import uma.autopsy.Exceptions.CaseDoesNotExistException;
+import uma.autopsy.Exceptions.CaseNotFoundException;
 import uma.autopsy.GlobalProperties.GlobalProperties;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class GeoLocationServiceImpl implements GeoLocationService {
     @Override
     public List<GeoLocation> getAllGeoLocations(String deviceId, int caseId) {
         Case caseEntity = caseRepository.findById(caseId)
-                .orElseThrow(() -> new CaseDoesNotExistException(STR."Case not found for this id : \{caseId}"));
+                .orElseThrow(() -> new CaseNotFoundException(STR."Case not found for this id : \{caseId}"));
         if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
         SleuthkitCase skcase = null;
@@ -52,7 +52,7 @@ public class GeoLocationServiceImpl implements GeoLocationService {
     public List<GeoLocation> getGeoLocationByDataSources(String deviceId, int caseId, List<Long> dataSourceIds) {
 
         Case caseEntity = caseRepository.findById(caseId)
-                .orElseThrow(() -> new CaseDoesNotExistException(STR."Case not found for this id : \{caseId}"));
+                .orElseThrow(() -> new CaseNotFoundException(STR."Case not found for this id : \{caseId}"));
         if (!validateDeviceId(deviceId, caseEntity)) {  throw new RuntimeException("Not Authorized for this operation"); }
 
         SleuthkitCase skcase = null;

@@ -1,15 +1,13 @@
 package uma.autopsy.FileViews;
 
 import org.apache.commons.lang3.StringUtils;
-import org.sleuthkit.datamodel.AbstractFile;
-import org.sleuthkit.datamodel.SleuthkitCase;
-import org.sleuthkit.datamodel.TskCoreException;
+import org.sleuthkit.datamodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uma.autopsy.Cases.Models.Case;
 import uma.autopsy.Cases.CaseRepository;
 import uma.autopsy.DataSourceContent.Models.FileNode;
-import uma.autopsy.Exceptions.CaseDoesNotExistException;
+import uma.autopsy.Exceptions.CaseNotFoundException;
 import uma.autopsy.Utils.QueryGenerator;
 
 import java.sql.ResultSet;
@@ -77,6 +75,7 @@ public class FileViewsServiceImpl implements FileViewsService {
                     }
                 }
             }
+
             return getCurrentMimeTypes(existingMimeTypeCounts);
         } catch (TskCoreException | SQLException e) {
             throw new RuntimeException(e);
@@ -138,6 +137,6 @@ public class FileViewsServiceImpl implements FileViewsService {
 
     private Case getCase(int caseId){
         return caseRepository.findById(caseId)
-                .orElseThrow(() -> new CaseDoesNotExistException(STR."Case not found for this id : \{caseId}"));
+                .orElseThrow(() -> new CaseNotFoundException(STR."Case not found for this id : \{caseId}"));
     }
 }

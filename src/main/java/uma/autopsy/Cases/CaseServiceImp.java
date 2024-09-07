@@ -16,7 +16,7 @@ import org.sleuthkit.datamodel.TskCoreException;
 import uma.autopsy.Cases.Models.Case;
 import uma.autopsy.Cases.Models.UpdateCaseRequest;
 import uma.autopsy.Exceptions.CaseAlreadyExistsException;
-import uma.autopsy.Exceptions.CaseDoesNotExistException;
+import uma.autopsy.Exceptions.CaseNotFoundException;
 import uma.autopsy.Devices.Device;
 import uma.autopsy.Devices.DeviceRepository;
 import uma.autopsy.GlobalProperties.GlobalProperties;
@@ -80,7 +80,7 @@ public class CaseServiceImp implements CaseService {
             if (!validateDeviceId(deviceId, caseOptional.get())) {  throw new RuntimeException("Not Authorized for this operation"); }
             return caseOptional.get();
         } else {
-            throw new CaseDoesNotExistException(STR."Case not found with id: \{id}");
+            throw new CaseNotFoundException(STR."Case not found with id: \{id}");
         }
     }
 
@@ -108,7 +108,7 @@ public class CaseServiceImp implements CaseService {
 
             return caseRepository.save(caseEntity);
         } else {
-            throw new CaseDoesNotExistException(STR."Case not found with id: \{caseRequest.getCaseId()}");
+            throw new CaseNotFoundException(STR."Case not found with id: \{caseRequest.getCaseId()}");
         }
     }
 
@@ -119,7 +119,7 @@ public class CaseServiceImp implements CaseService {
             deleteCaseFile(caseEntity.getCasePath());
             caseRepository.deleteById(id);
         } else {
-            throw new CaseDoesNotExistException(STR."Case not found with id: \{id}");
+            throw new CaseNotFoundException(STR."Case not found with id: \{id}");
         }
     }
 
