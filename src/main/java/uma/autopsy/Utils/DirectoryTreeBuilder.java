@@ -84,10 +84,12 @@ public class DirectoryTreeBuilder {
                 sha256Hash, mimeType, extension, fileType, mTime, cTime, aTime,
                 crTime, fileSystemType, hasAnalysisResults, isVirtual, isDeleted, isVolume, volumeInfo, dataSourceId);
 
-        for (Content child : content.getChildren()) {
-            FileNode childNode = buildTree(child);
-            if (childNode != null) {
-                node.addChild(childNode);
+        if (extension.isEmpty() || isDir) {
+            for (Content child : content.getChildren()) {
+                FileNode childNode = buildTree(child);
+                if (childNode != null) {
+                    node.addChild(childNode);
+                }
             }
         }
         return node;
