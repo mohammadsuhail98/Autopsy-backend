@@ -5,16 +5,11 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.context.annotation.Primary;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.validation.annotation.Validated;
 import uma.autopsy.DataSource.DataSource;
 import uma.autopsy.Devices.Device;
 
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
 
