@@ -67,23 +67,25 @@ To run the backend system on your local machine, follow these steps:
    ```bash
    mvn install -Dmaven.test.skip=true
 
-5. **Set VM Options**
+5. **Install Lombok Plugin**
+
+6. **Set VM Options**
    Add the following VM options to the run configuration:
    ```
    --add-opens
    java.base/java.lang.ref=ALL-UNNAMED
    -Dnetbeans.user={PROJECT_DIR_PATH}/netbeans_userdir
   
-6. **Configure PostgreSQL**
+7. **Configure PostgreSQL**
    Ensure PostgreSQL is installed, and update the connection details in the `application.properties` file:
    ```
    spring.datasource.url=jdbc:postgresql:{db_connection_string}
    spring.datasource.username=your_username
    spring.datasource.password=your_password
 
-7. **Configure Case Directory**
+8. **Configure Case Directory**
    In the `application.properties` file, update the path for storing cases:
    ```
    case.baseDir={Default_dir_path_to_store_the_cases}
-8. **Run the Project**
+9. **Run the Project**
    Once the above steps are complete, run the project.
