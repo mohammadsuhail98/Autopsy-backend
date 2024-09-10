@@ -1,0 +1,939 @@
+{
+	"info": {
+		"_postman_id": "4007621d-e12e-4a97-b731-2adfc59da93e",
+		"name": "Autopsy APIs",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "10264698"
+	},
+	"item": [
+		{
+			"name": "Cases",
+			"item": [
+				{
+					"name": "Get Case List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "4C76C580-FDB9-4AFA-87D1-D930D7A84475",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/cases",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"cases"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Case Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "4C76C580-FDB9-4AFA-87D1-D930D7A84475",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/cases/20",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"cases",
+								"20"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Case",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "deviceId",
+									"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "TestCase1",
+									"type": "text"
+								},
+								{
+									"key": "examinerName",
+									"value": "Test User",
+									"type": "text"
+								},
+								{
+									"key": "number",
+									"value": "1",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/cases",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"cases"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "tee",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Case",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "caseId",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "examinerName",
+									"value": "test2",
+									"type": "text"
+								},
+								{
+									"key": "examinerNotes",
+									"value": "test update notes",
+									"type": "text"
+								},
+								{
+									"key": "examinerPhone",
+									"value": "739555231",
+									"type": "text"
+								},
+								{
+									"key": "examinerEmail",
+									"value": "test@gmail.com",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/cases/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"cases",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Case",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "4C76C580-FDB9-4AFA-87D1-D930D7A84475",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/cases/19",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"cases",
+								"19"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Data Sources",
+			"item": [
+				{
+					"name": "Add Data Source",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "4E44B3F7-029B-4F4C-997F-97804B3418EA",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/Users/mohammadsuhail/Desktop/cases/images/USBs/USB10.001"
+								},
+								{
+									"key": "timeZone",
+									"value": "(GMT+1:00) Europe/Madrid",
+									"type": "text"
+								},
+								{
+									"key": "sectorSize",
+									"value": "512",
+									"type": "text"
+								},
+								{
+									"key": "ignoreOrphanFiles",
+									"value": "false",
+									"type": "text"
+								},
+								{
+									"key": "addUnAllocSpace",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "exifParser",
+									"value": "true",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8081/api/cases/4/datasources",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"cases",
+								"4",
+								"datasources"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Data Source",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/cases/1/datasources/3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"cases",
+								"1",
+								"datasources",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Data Source List",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/cases/1/datasources",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"cases",
+								"1",
+								"datasources"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Data Source Details",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/cases/1/datasources/1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"cases",
+								"1",
+								"datasources",
+								"1"
+							],
+							"query": [
+								{
+									"key": "",
+									"value": null,
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Data Source Content",
+			"item": [
+				{
+					"name": "Get Data Source Content",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/datasource/1/content",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"datasource",
+								"1",
+								"content"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "1",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Data Source File Content",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "4C76C580-FDB9-4AFA-87D1-D930D7A84475",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/datasource/file?caseId=2&fileId=120",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"datasource",
+								"file"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "2"
+								},
+								{
+									"key": "fileId",
+									"value": "120"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Data Source File Hex",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "4C76C580-FDB9-4AFA-87D1-D930D7A84475",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/datasource/file_hex?caseId=2&fileId=120",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"datasource",
+								"file_hex"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "2"
+								},
+								{
+									"key": "fileId",
+									"value": "120"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Data Source File Text",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "4C76C580-FDB9-4AFA-87D1-D930D7A84475",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/datasource/file_strings?caseId=2&fileId=120",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"datasource",
+								"file_strings"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "2"
+								},
+								{
+									"key": "fileId",
+									"value": "120"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Data Source File Application",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "4C76C580-FDB9-4AFA-87D1-D930D7A84475",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/datasource/file_application?caseId=2&fileId=120",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"datasource",
+								"file_application"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "2"
+								},
+								{
+									"key": "fileId",
+									"value": "120"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Data Source File Analysis Results",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "4C76C580-FDB9-4AFA-87D1-D930D7A84475",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/datasource/analysis_results?caseId=2&fileId=120",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"datasource",
+								"analysis_results"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "2"
+								},
+								{
+									"key": "fileId",
+									"value": "120"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Geolocation",
+			"item": [
+				{
+					"name": "Get All Geo Locations",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/geolocation?caseId=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"geolocation"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get Geo Location By Data Sources",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/geolocation/data_sources?caseId=1&dataSourceIds=1&dataSourceIds=1630",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"geolocation",
+								"data_sources"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "1"
+								},
+								{
+									"key": "dataSourceIds",
+									"value": "1"
+								},
+								{
+									"key": "dataSourceIds",
+									"value": "1630"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Analysis Results",
+			"item": [
+				{
+					"name": "Current Analysis Results Types",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/analysis_results/current_types?caseId=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"analysis_results",
+								"current_types"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Files By Analysis Results Types",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/analysis_results/files?caseId=1&type=16",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"analysis_results",
+								"files"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "1"
+								},
+								{
+									"key": "type",
+									"value": "16"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "File Views",
+			"item": [
+				{
+					"name": "Get Files By View Type",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/file_views/files_by_view_type?caseId=1&type=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"file_views",
+								"files_by_view_type"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "1"
+								},
+								{
+									"key": "type",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current Mime Types",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/file_views/mime_types?caseId=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"file_views",
+								"mime_types"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Files By Mime Type",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/file_views/mime_types?caseId=1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"file_views",
+								"mime_types"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Deleted Files",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/file_views/deleted_files?caseId=1&type=18",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"file_views",
+								"deleted_files"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "1"
+								},
+								{
+									"key": "type",
+									"value": "18"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Files By Size Ranges",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "deviceId",
+								"value": "0ca4e3e8-e90a-43c2-b6b8-bf95e15f83ee",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "http://localhost:8081/api/file_views/files_by_size?caseId=1&type=18",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8081",
+							"path": [
+								"api",
+								"file_views",
+								"files_by_size"
+							],
+							"query": [
+								{
+									"key": "caseId",
+									"value": "1"
+								},
+								{
+									"key": "type",
+									"value": "18"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
