@@ -1,5 +1,5 @@
 # Autopsy Backend System
-Server side of the Autopsy application utilising the Sleuth Kit (TSK) library.
+Server side of the Autopsy application utilizing the Sleuth Kit (TSK) library.
 
 ## Prerequisites
 - **Open JDK 22**: Download and install the required JDK version from [OpenJDK 22](https://jdk.java.net/22/).
@@ -67,25 +67,30 @@ To run the backend system on your local machine, follow these steps:
    ```bash
    mvn install -Dmaven.test.skip=true
 
-5. **Install Lombok Plugin**
+6. **Install Lombok Plugin**
 
-6. **Set VM Options**
+7. **Set VM Options**  
    Add the following VM options to the run configuration:
    ```
    --add-opens
    java.base/java.lang.ref=ALL-UNNAMED
    -Dnetbeans.user={PROJECT_DIR_PATH}/netbeans_userdir
   
-7. **Configure PostgreSQL**
+8. **Configure PostgreSQL**  
    Ensure PostgreSQL is installed, and update the connection details in the `application.properties` file:
    ```
    spring.datasource.url=jdbc:postgresql:{db_connection_string}
    spring.datasource.username=your_username
    spring.datasource.password=your_password
 
-8. **Configure Case Directory**
+9. **Configure Case Directory**  
    In the `application.properties` file, update the path for storing cases:
    ```
    case.baseDir={Default_dir_path_to_store_the_cases}
-9. **Run the Project**
+10. **Run the Project**  
    Once the above steps are complete, run the project.
+
+## Additional Resources
+In the `test_api` folder, you will find a **Postman Collection** containing the APIs used by the backend system. To use the collection, simply import it into Postman.
+
+
